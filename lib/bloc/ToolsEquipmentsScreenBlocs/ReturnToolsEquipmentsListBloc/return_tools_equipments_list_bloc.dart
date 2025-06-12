@@ -156,7 +156,6 @@ class ReturnToolsEquipmentsListBloc
       user,
       willInBy,
     );
-    print(isvalidForIn);
 
     if (!isvalidForIn) {
       emit(

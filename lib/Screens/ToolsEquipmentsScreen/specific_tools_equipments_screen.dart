@@ -7,7 +7,8 @@ import 'package:inventory_system/SharedComponents/custom_footer.dart';
 import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/FilterDataByNameBloc/filter_db_bloc.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
+// import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
+import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 
 class SpecificToolsEquipmentsScreen extends StatelessWidget {
   const SpecificToolsEquipmentsScreen({super.key});
@@ -15,41 +16,49 @@ class SpecificToolsEquipmentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FilterDBBloc(
-          RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context)),
+      create:
+          (context) => FilterDBBloc(
+            RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context),
+          ),
       child: SafeArea(
         child: Scaffold(
           appBar: CustomAppbar(),
           body: Row(
             children: [
               SideMenu(),
-              Container(
-                width: 2,
-                color: Theme.of(context).primaryColor,
-              ),
-              BlocBuilder<SelectedItemBloc, SelectedItemState>(
+              Container(width: 2, color: Theme.of(context).primaryColor),
+              BlocBuilder<SelectedItemCubit, SelectedItemState>(
                 builder: (context, state) {
-                  if (state is SelectedItemInitial) {
-                    return CircularProgressIndicator();
-                  } else if (state is SelectedItemLoading) {
-                    return CircularProgressIndicator();
-                  } else if (state is SelectedItemLoaded) {
+                  if (state is SelectedItem) {
                     final passedData = state.passedData;
                     return _mainContent(context, passedData);
-                  } else if (state is SelectedItemError) {
-                    return Column(
-                      children: [
-                        Icon(Icons.error_outline_rounded),
-                        Text(
-                          state.error,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    );
                   }
                   return Container();
                 },
               ),
+              // BlocBuilder<SelectedItemBloc, SelectedItemState>(
+              //   builder: (context, state) {
+              //     if (state is SelectedItem) {
+              //       return CircularProgressIndicator();
+              //     } else if (state is SelectedItemLoading) {
+              //       return CircularProgressIndicator();
+              //     } else if (state is SelectedItemLoaded) {
+              //       final passedData = state.passedData;
+              //       return _mainContent(context, passedData);
+              //     } else if (state is SelectedItemError) {
+              //       return Column(
+              //         children: [
+              //           Icon(Icons.error_outline_rounded),
+              //           Text(
+              //             state.error,
+              //             style: Theme.of(context).textTheme.bodyMedium,
+              //           ),
+              //         ],
+              //       );
+              //     }
+              //     return Container();
+              //   },
+              // ),
             ],
           ),
         ),
@@ -80,10 +89,9 @@ class SpecificToolsEquipmentsScreen extends StatelessWidget {
                     Center(
                       child: Text(
                         passedData["itemName"],
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -109,62 +117,60 @@ class SpecificToolsEquipmentsScreen extends StatelessWidget {
                 BlocBuilder<FilterDBBloc, FilterDBState>(
                   builder: (context, state) {
                     if (state is FilterDbInitial) {
-                      context
-                          .read<FilterDBBloc>()
-                          .add(FetchFiltedDBEvent(passedData["itemName"]));
+                      context.read<FilterDBBloc>().add(
+                        FetchFiltedDBEvent(passedData["itemName"]),
+                      );
                       return Center(child: CircularProgressIndicator());
                     } else if (state is FilterDbLoading) {
                       return Center(child: CircularProgressIndicator());
                     } else if (state is FilteredDBLoaded) {
                       final datas = state.datas;
                       return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: datas.length,
-                          itemBuilder: (context, index) {
-                            final String itemId = datas[index]["id"].toString();
-                            final String itemName = datas[index]["name"];
-                            final String itemStatus = datas[index]["status"];
+                        shrinkWrap: true,
+                        itemCount: datas.length,
+                        itemBuilder: (context, index) {
+                          final String itemId = datas[index]["id"].toString();
+                          final String itemName = datas[index]["name"];
+                          final String itemStatus = datas[index]["status"];
 
-                            return GestureDetector(
-                              onTap: () {
-                                final data = {
-                                  "itemId": itemId,
-                                  "itemName": itemName,
-                                  "itemStatus": itemStatus
-                                };
-                                context.read<SelectedItemBloc>().add(
-                                    SelectSelectedItemEvent(passedData: data));
-                                Navigator.pushNamed(
-                                  context,
-                                  itemDetailsScreen,
-                                );
-                              },
-                              child: Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                          color: Theme.of(context).primaryColor,
-                                          width: 1),
-                                    ),
+                          return GestureDetector(
+                            onTap: () {
+                              final data = {
+                                "itemId": itemId,
+                                "itemName": itemName,
+                                "itemStatus": itemStatus,
+                              };
+                              // context.read<SelectedItemBloc>().add(
+                              //   SelectSelectedItemEvent(passedData: data),
+                              // );
+                              context.read<SelectedItemCubit>().setSelectedItem(passedData: data);
+                              Navigator.pushNamed(context, itemDetailsScreen);
+                            },
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Theme.of(context).primaryColor,
+                                    width: 1,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      RowContent(displayText: itemId),
-                                      RowContent(displayText: itemName),
-                                      RowContent(displayText: itemStatus),
-                                    ],
-                                  )),
-                            );
-                          });
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  RowContent(displayText: itemId),
+                                  RowContent(displayText: itemName),
+                                  RowContent(displayText: itemStatus),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
                     } else if (state is FilterDbStateError) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return Center(child: CircularProgressIndicator());
                     } else {
-                      return Center(
-                        child: Text("Something Went Wrong"),
-                      );
+                      return Center(child: Text("Something Went Wrong"));
                     }
                   },
                 ),
@@ -179,10 +185,7 @@ class SpecificToolsEquipmentsScreen extends StatelessWidget {
 }
 
 class RowContent extends StatelessWidget {
-  const RowContent({
-    super.key,
-    required this.displayText,
-  });
+  const RowContent({super.key, required this.displayText});
 
   final String displayText;
 
@@ -199,10 +202,7 @@ class RowContent extends StatelessWidget {
 }
 
 class Titles extends StatelessWidget {
-  const Titles({
-    super.key,
-    required this.displayText,
-  });
+  const Titles({super.key, required this.displayText});
 
   final String displayText;
 
@@ -212,10 +212,9 @@ class Titles extends StatelessWidget {
       child: Text(
         textAlign: TextAlign.center,
         displayText,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge!
-            .copyWith(fontWeight: FontWeight.bold),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }

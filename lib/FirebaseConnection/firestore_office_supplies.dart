@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, deprecated_member_use, avoid_web_libraries_in_flutter
 
 import 'package:flutter/foundation.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';

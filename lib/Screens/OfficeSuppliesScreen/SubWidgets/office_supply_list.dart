@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/bloc/OfficeSuppliesScreenBlocs/AddNewOfficeSupplyButtonBloc/add_new_office_supply_button_bloc.dart';
 import 'package:inventory_system/bloc/OfficeSuppliesScreenBlocs/OfficeSuppliesBloc/office_supplies_bloc.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
+import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 
 class OfficeSupplyList extends StatefulWidget {
-  const OfficeSupplyList({
-    super.key,
-  });
+  const OfficeSupplyList({super.key});
 
   @override
   State<OfficeSupplyList> createState() => _OfficeSupplyListState();
@@ -17,9 +16,9 @@ class OfficeSupplyList extends StatefulWidget {
 class _OfficeSupplyListState extends State<OfficeSupplyList> {
   @override
   void initState() {
-    context
-        .read<OfficeSuppliesBloc>()
-        .add(FetchOfficeSuppliesEvent(search: ""));
+    context.read<OfficeSuppliesBloc>().add(
+      FetchOfficeSuppliesEvent(search: ""),
+    );
     super.initState();
   }
 
@@ -54,19 +53,22 @@ class _OfficeSupplyListState extends State<OfficeSupplyList> {
                   listener: (context, state) {
                     if (state is SearchBarInitial) {
                       context.read<OfficeSuppliesBloc>().add(
-                          FetchOfficeSuppliesEvent(search: state.searchedItem));
+                        FetchOfficeSuppliesEvent(search: state.searchedItem),
+                      );
                       // FetchToolsEquipmentsData(search: state.searchedItem)
                     }
                   },
                 ),
-                BlocListener<AddNewOfficeSupplyButtonBloc,
-                    AddNewOfficeSupplyButtonState>(
+                BlocListener<
+                  AddNewOfficeSupplyButtonBloc,
+                  AddNewOfficeSupplyButtonState
+                >(
                   listener: (context, state) {
                     if (state is AddNewOfficeSupplyButtonLoaded) {
                       if (state.success) {
-                        context
-                            .read<OfficeSuppliesBloc>()
-                            .add(FetchOfficeSuppliesEvent(search: ""));
+                        context.read<OfficeSuppliesBloc>().add(
+                          FetchOfficeSuppliesEvent(search: ""),
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Insertion failed')),
@@ -91,9 +93,10 @@ class _OfficeSupplyListState extends State<OfficeSupplyList> {
                       itemCount: supplyList.length,
                       itemBuilder: (context, index) {
                         final supply = supplyList[index];
-                        final String supplyId = supply["id"] != null
-                            ? supply["id"].toString()
-                            : "Supply ID not Found";
+                        final String supplyId =
+                            supply["id"] != null
+                                ? supply["id"].toString()
+                                : "Supply ID not Found";
                         final String supplyName = supply["name"];
                         final String supplyAmount = supply["amount"].toString();
                         final String supplyUnit = supply["unit"];
@@ -105,19 +108,20 @@ class _OfficeSupplyListState extends State<OfficeSupplyList> {
                               "supplyUnit": supplyUnit,
                               "listIndex": index,
                             };
-                            context
-                                .read<SelectedItemBloc>()
-                                .add(SelectSelectedItemEvent(passedData: data));
+                            context.read<SelectedItemCubit>().setSelectedItem(
+                              passedData: data,
+                            );
                             // The navigation is in the listener
-                            // Navigator.pushNamed(context, supplyDetailsScreen);
+                            Navigator.pushNamed(context, supplyDetailsScreen);
                           },
                           child: Container(
                             height: 50,
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
-                                    color: Theme.of(context).primaryColor,
-                                    width: 1),
+                                  color: Theme.of(context).primaryColor,
+                                  width: 1,
+                                ),
                               ),
                             ),
                             child: Row(
@@ -126,7 +130,8 @@ class _OfficeSupplyListState extends State<OfficeSupplyList> {
                                 RowContent(displayText: supplyId),
                                 RowContent(displayText: supplyName),
                                 RowContent(
-                                    displayText: "$supplyAmount - $supplyUnit"),
+                                  displayText: "$supplyAmount - $supplyUnit",
+                                ),
                               ],
                             ),
                           ),
@@ -136,25 +141,20 @@ class _OfficeSupplyListState extends State<OfficeSupplyList> {
                   } else if (state is OfficeSuppliesStateError) {
                     return Text('Error: ${state.error}');
                   } else {
-                    return Center(
-                      child: Text("No Data"),
-                    );
+                    return Center(child: Text("No Data"));
                   }
                 },
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
 }
 
 class Titles extends StatelessWidget {
-  const Titles({
-    super.key,
-    required this.displayText,
-  });
+  const Titles({super.key, required this.displayText});
 
   final String displayText;
 
@@ -164,20 +164,16 @@ class Titles extends StatelessWidget {
       child: Text(
         textAlign: TextAlign.center,
         displayText,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge!
-            .copyWith(fontWeight: FontWeight.bold),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
 class RowContent extends StatelessWidget {
-  const RowContent({
-    super.key,
-    required this.displayText,
-  });
+  const RowContent({super.key, required this.displayText});
 
   final String displayText;
 

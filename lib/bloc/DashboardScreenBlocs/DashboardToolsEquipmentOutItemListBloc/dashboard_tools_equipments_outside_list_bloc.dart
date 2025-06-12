@@ -18,21 +18,11 @@ class DashboardToolsEquipmentsOutsideListBloc
       emit(DashboardToolsEquipmentsOutsideListLoading());
       try {
         final List<Map<String, dynamic>> initialData = [];
-        final List<Map<String, dynamic>> formatedData = [];
         final items =  db.itemsOutside();
         for (var item in items) {
           final itemToAdd = {"id": item['id'], "name": item['name']};
           initialData.add(itemToAdd);
         }
-        // for (var item in initialData) {
-        //   final dateOut = db.itemHistory(item['id']);
-        //   final lastRecord = dateOut.last;
-        //   print("hello: $lastRecord");
-        //   final date = lastRecord['releaseDate'] as DateTime;
-        //   final formatedDate = "${date.year}-${date.month}-${date.day}";
-        //   item['date'] = formatedDate;
-        //   formatedData.add(item);
-        // }
         emit(DashboardToolsEquipmentsOutsideListLoaded(initialData));
       } catch (e) {
         emit(DashboardToolsEquipmentsOutsideListError(e.toString()));

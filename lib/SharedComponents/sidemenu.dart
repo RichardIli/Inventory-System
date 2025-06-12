@@ -89,20 +89,6 @@ class SideMenu extends StatelessWidget {
                                   context, officeSuppliesScreen);
                             },
                           ),
-                          // NOTE: I Remove this because this is useless for now.
-                          //
-                          // CustomMenuButtons(
-                          //   displayIcon: Icons.hardware_outlined,
-                          //   displayLabel: "Workers",
-                          //   isSelected:
-                          //       state.initialScreen == 4 ? true : false,
-                          //   ontap: () {
-                          //     context
-                          //         .read<SideMenuBloc>()
-                          //         .add(NavigateToWorkersEvent());
-                          //     Navigator.pushNamed(context, workersScreen);
-                          //   },
-                          // ),
                           CustomMenuButtons(
                             displayIcon: Icons.history,
                             displayLabel: "Transmital History",

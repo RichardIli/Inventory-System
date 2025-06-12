@@ -10,7 +10,6 @@ import 'package:inventory_system/SharedComponents/custom_appbar.dart';
 import 'package:inventory_system/SharedComponents/custom_footer.dart';
 import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/AddToolsEquipmentsButtonBloc/add_tools_equipments_button_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
 
@@ -22,13 +21,14 @@ class ToolsEquipmentScreen extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AddToolsEquipmentsButtonBloc(
-            RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context),
-          ),
+          create:
+              (context) => AddToolsEquipmentsButtonBloc(
+                RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
+                  context,
+                ),
+              ),
         ),
-        BlocProvider<SearchBarBloc>(
-          create: (context) => SearchBarBloc(),
-        ),
+        BlocProvider<SearchBarBloc>(create: (context) => SearchBarBloc()),
       ],
       child: Body(),
     );
@@ -36,34 +36,14 @@ class ToolsEquipmentScreen extends StatelessWidget {
 }
 
 class Body extends StatelessWidget {
-  const Body({
-    super.key,
-  });
+  const Body({super.key});
 
   @override
   Widget build(BuildContext context) {
     GlobalKey<ScaffoldMessengerState> scaffoldMessStateKey = GlobalKey();
 
-    return BlocListener<SelectedItemBloc, SelectedItemState>(
-      listener: (context, state) {
-        if (state is SelectedItemError) {
-          scaffoldMessStateKey.currentState!.showSnackBar(SnackBar(
-            content: Text(
-              state.error,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: Colors.white),
-            ),
-            backgroundColor: Colors.red[400],
-            action: SnackBarAction(
-                label: "Close",
-                onPressed: () =>
-                    scaffoldMessStateKey.currentState!.hideCurrentSnackBar()),
-          ));
-        }
-      },
-      child: Builder(builder: (builderContext) {
+    return Builder(
+      builder: (builderContext) {
         return ScaffoldMessenger(
           key: scaffoldMessStateKey,
           child: SafeArea(
@@ -72,10 +52,7 @@ class Body extends StatelessWidget {
               body: Row(
                 children: [
                   SideMenu(),
-                  Container(
-                    width: 2,
-                    color: Theme.of(context).primaryColor,
-                  ),
+                  Container(width: 2, color: Theme.of(context).primaryColor),
                   Expanded(
                     child: Padding(
                       padding: contentPadding,
@@ -85,9 +62,7 @@ class Body extends StatelessWidget {
                         children: [
                           Text(
                             "Tools and Equipments",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
+                            style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           // search box
@@ -117,30 +92,35 @@ class Body extends StatelessWidget {
                                 CustomActionButtons(
                                   displayLabel: "RETURN TOOLS/EQUIPMENTS",
                                   customIcon: Icons.inventory_rounded,
-                                  onPressed: () => Navigator.pushNamed(
-                                      context, returnToolsEquipmentsScreen),
+                                  onPressed:
+                                      () => Navigator.pushNamed(
+                                        context,
+                                        returnToolsEquipmentsScreen,
+                                      ),
                                 ),
                                 CustomActionButtons(
                                   displayLabel: "RELEASE TOOLS/EQUIPMENTS",
                                   customIcon: Icons.outbox_outlined,
-                                  onPressed: () => Navigator.pushNamed(
-                                    context,
-                                    releaseToolsEquipmentsScreen,
-                                  ),
+                                  onPressed:
+                                      () => Navigator.pushNamed(
+                                        context,
+                                        releaseToolsEquipmentsScreen,
+                                      ),
                                 ),
                                 CustomActionButtons(
                                   displayLabel:
                                       "GROUP TOOLS/EQUIPMENT PER TYPE",
                                   customIcon: Icons.group_work_outlined,
-                                  onPressed: () => Navigator.pushNamed(
-                                      context, toolsEquipmentCountScreen),
+                                  onPressed:
+                                      () => Navigator.pushNamed(
+                                        context,
+                                        toolsEquipmentCountScreen,
+                                      ),
                                 ),
                               ],
                             ),
                           ),
-                          Expanded(
-                            child: ItemsList(),
-                          ),
+                          Expanded(child: ItemsList()),
                           CustomFooter(),
                         ],
                       ),
@@ -151,7 +131,7 @@ class Body extends StatelessWidget {
             ),
           ),
         );
-      }),
+      },
     );
   }
 }
@@ -174,24 +154,18 @@ class CustomActionButtons extends StatelessWidget {
       onPressed: onPressed,
       label: Text(
         displayLabel,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).primaryColor,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(color: Theme.of(context).primaryColor),
       ),
-      icon: Icon(
-        customIcon,
-        size: 30,
-        color: Colors.black,
-      ),
+      icon: Icon(customIcon, size: 30, color: Colors.black),
       iconAlignment: IconAlignment.end,
     );
   }
 }
 
 class CustomSearchBox extends StatefulWidget {
-  const CustomSearchBox({
-    super.key,
-  });
+  const CustomSearchBox({super.key});
 
   @override
   State<CustomSearchBox> createState() => _CustomSearchBoxState();
@@ -214,10 +188,8 @@ class _CustomSearchBoxState extends State<CustomSearchBox> {
   void _performSearch(String query) {
     // Implement your search logic here
     context.read<SearchBarBloc>().add(
-          FetchSearchBarFilteredItemEvent(
-            searchItem: query.toUpperCase(),
-          ),
-        );
+      FetchSearchBarFilteredItemEvent(searchItem: query.toUpperCase()),
+    );
   }
 
   @override
@@ -232,29 +204,10 @@ class _CustomSearchBoxState extends State<CustomSearchBox> {
       height: 40,
       width: 400,
       child: SearchBar(
-        // onChanged: (value) {
-        //   if (value.isNotEmpty) {
-        //     // refresh the current list with filtered data
-        //     context.read<SearchBarBloc>().add(
-        //           FetchSearchBarFilteredItemEvent(
-        //             searchItem: value.toUpperCase(),
-        //           ),
-        //         );
-        //   } else {
-        //     // refresh the current list without inputed data in the search bar
-        //     context.read<SearchBarBloc>().add(
-        //           FetchSearchBarFilteredItemEvent(
-        //             searchItem: "",
-        //           ),
-        //         );
-        //   }
-        // },
         onChanged: _onSearchChanged,
         leading: Icon(Icons.search_rounded),
         hintText: "Search...",
-        hintStyle: WidgetStatePropertyAll(
-          TextStyle(color: Colors.grey),
-        ),
+        hintStyle: WidgetStatePropertyAll(TextStyle(color: Colors.grey)),
       ),
     );
   }

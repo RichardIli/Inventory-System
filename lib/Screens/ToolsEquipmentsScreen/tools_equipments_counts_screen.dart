@@ -6,7 +6,7 @@ import 'package:inventory_system/SharedComponents/custom_appbar.dart';
 import 'package:inventory_system/SharedComponents/custom_footer.dart';
 import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
+import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/GroupOfToolsEquipmentsCountByNameBloc/group_of_tools_equipments_count_bloc.dart';
 
 class ToolsEquipmentsCountScreen extends StatefulWidget {
@@ -27,15 +27,6 @@ class _ToolsEquipmentsCountScreenState
         .add(FetchGroupOfToolsEquipmentsCountByNameEvent());
     super.initState();
   }
-
-  // Future<void> importToolsEquipment(List<Map<String, dynamic>> data) async {
-  //   try {
-  //     final FirestoreItemsRepo firestoreItemsRepo = FirestoreItemsRepo();
-  //     await firestoreItemsRepo.importToolsEquipment(data);
-  //   } catch (e) {
-  //     print("error: $e");
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -183,9 +174,8 @@ class ListRow extends StatelessWidget {
                   "itemName": itemName,
                 };
                 // selecting item from the list and view its details
-                context
-                    .read<SelectedItemBloc>()
-                    .add(SelectSelectedItemEvent(passedData: data));
+                context.read<SelectedItemCubit>().setSelectedItem(passedData: data);
+
                 Navigator.pushNamed(context, specificToolsEquipmentsScreen);
               },
               child: Container(

@@ -10,7 +10,6 @@ import 'package:inventory_system/SharedComponents/custom_appbar.dart';
 import 'package:inventory_system/SharedComponents/custom_footer.dart';
 import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
 import 'package:inventory_system/bloc/SuppliesScreenBlocs/AddNewSupplyButtonBloc/add_new_supply_button_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
 
@@ -32,119 +31,96 @@ class SuppliesScreen extends StatelessWidget {
       ],
       child: Builder(builder: (builderContext) {
         return SafeArea(
-          child: BlocListener<SelectedItemBloc, SelectedItemState>(
-            listener: (context, state) {
-              if (state is SelectedItemLoaded) {
-                // Navigate if the passing the data succeed
-                Navigator.pushNamed(context, supplyDetailsScreen);
-              } else if (state is SelectedItemError) {
-                scaffoldMessStateKey.currentState!.showSnackBar(SnackBar(
-                  content: Text(
-                    state.error,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(color: Colors.white),
+          child: ScaffoldMessenger(
+            key: scaffoldMessStateKey,
+            child: Scaffold(
+              appBar: CustomAppbar(),
+              body: Row(
+                children: [
+                  SideMenu(),
+                  Container(
+                    width: 2,
+                    color: Theme.of(context).primaryColor,
                   ),
-                  backgroundColor: Colors.red[400],
-                  action: SnackBarAction(
-                      label: "Close",
-                      onPressed: () => scaffoldMessStateKey.currentState!
-                          .hideCurrentSnackBar()),
-                ));
-              }
-            },
-            child: ScaffoldMessenger(
-              key: scaffoldMessStateKey,
-              child: Scaffold(
-                appBar: CustomAppbar(),
-                body: Row(
-                  children: [
-                    SideMenu(),
-                    Container(
-                      width: 2,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: contentPadding,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 10,
-                          children: [
-                            Text(
-                              "Supplies",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CustomSearchBox(),
-                                Row(
-                                  children: [
-                                    TextButton.icon(
-                                      onPressed: () => Navigator.pushNamed(
-                                          context, pullOutSupplyScreen),
-                                      label: Text(
-                                        "Pull-Out Supply",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                      ),
-                                      icon: Icon(
-                                        Icons.inventory_rounded,
-                                        size: 30,
-                                        color: Colors.black,
-                                      ),
-                                      iconAlignment: IconAlignment.end,
+                  Expanded(
+                    child: Padding(
+                      padding: contentPadding,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
+                        children: [
+                          Text(
+                            "Supplies",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomSearchBox(),
+                              Row(
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: () => Navigator.pushNamed(
+                                        context, pullOutSupplyScreen),
+                                    label: Text(
+                                      "Pull-Out Supply",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .primaryColor,
+                                          ),
                                     ),
-                                    TextButton.icon(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: builderContext,
-                                          builder: (context) {
-                                            return AddSupplyWindow(
-                                              builderContext: builderContext,
-                                            );
-                                          },
-                                        );
-                                      },
-                                      label: Text(
-                                        "ADD Supply",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                      ),
-                                      icon: Icon(
-                                        Icons.add_box_outlined,
-                                        size: 30,
-                                        color: Colors.black,
-                                      ),
-                                      iconAlignment: IconAlignment.end,
+                                    icon: Icon(
+                                      Icons.inventory_rounded,
+                                      size: 30,
+                                      color: Colors.black,
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Expanded(child: SupplyList()),
-                            CustomFooter(),
-                          ],
-                        ),
+                                    iconAlignment: IconAlignment.end,
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: builderContext,
+                                        builder: (context) {
+                                          return AddSupplyWindow(
+                                            builderContext: builderContext,
+                                          );
+                                        },
+                                      );
+                                    },
+                                    label: Text(
+                                      "ADD Supply",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .primaryColor,
+                                          ),
+                                    ),
+                                    icon: Icon(
+                                      Icons.add_box_outlined,
+                                      size: 30,
+                                      color: Colors.black,
+                                    ),
+                                    iconAlignment: IconAlignment.end,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Expanded(child: SupplyList()),
+                          CustomFooter(),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

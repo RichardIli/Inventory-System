@@ -13,7 +13,7 @@ import 'package:inventory_system/bloc/DashboardScreenBlocs/DashboardToolsEquipme
 import 'package:inventory_system/bloc/DashboardScreenBlocs/DashboardUsersCountBloc/dashboard_users_count_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/QRGeneratorBloc/qr_generator_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SaveQRCodeButtonBloc/save_qr_code_button_bloc.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
+import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 import 'package:inventory_system/bloc/SideMenuBloc/side_menu_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/AppbarUserNameBloc/user_name_appbar_bloc.dart';
 import 'package:inventory_system/bloc/SuppliesScreenBlocs/SuppliesBloc/supplies_bloc.dart';
@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(
               create: (context) => UsersBloc(
                   RepositoryProvider.of<FirestoreUsersDbRepository>(context))),
-          BlocProvider(create: (context) => SelectedItemBloc()),
+          BlocProvider(create: (context)=> SelectedItemCubit())
         ],
         child: MaterialApp(
           title: 'Inventory System',

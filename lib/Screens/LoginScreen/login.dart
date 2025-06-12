@@ -190,6 +190,9 @@
 //   }
 // }
 
+// ignore_for_file: unnecessary_null_comparison, await_only_futures
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
@@ -295,7 +298,9 @@ class _LoginPageState extends State<LoginPage> {
         usernameError = true;
         passwordError = true;
       });
-      print('Login Error: $e'); // Log the error for debugging
+      if (kDebugMode) {
+        print('Login Error: $e');
+      } // Log the error for debugging
     } finally {
       setState(() {
         _isLoading = false; // Stop loading regardless of success or failure

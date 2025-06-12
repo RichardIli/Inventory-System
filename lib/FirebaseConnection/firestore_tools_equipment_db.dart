@@ -237,7 +237,9 @@ class FirestoreToolsEquipmentDBRepository {
 
       return true;
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return false;
     }
   }

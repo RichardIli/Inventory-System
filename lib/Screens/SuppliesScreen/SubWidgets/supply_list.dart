@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:inventory_system/FirebaseConnection/firestore_items_repo.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
+import 'package:inventory_system/Routes/routes.dart';
+import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 import 'package:inventory_system/bloc/SuppliesScreenBlocs/AddNewSupplyButtonBloc/add_new_supply_button_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
 import 'package:inventory_system/bloc/SuppliesScreenBlocs/SuppliesBloc/supplies_bloc.dart';
 
 class SupplyList extends StatefulWidget {
-  const SupplyList({
-    super.key,
-  });
+  const SupplyList({super.key});
 
   @override
   State<SupplyList> createState() => _SupplyListState();
@@ -21,16 +19,6 @@ class _SupplyListState extends State<SupplyList> {
     context.read<SuppliesBloc>().add(FetchSuppliesEvent(search: ""));
     super.initState();
   }
-
-  // Future<void> importData(List<Map<String, dynamic>> data) async {
-  //   try {
-  //     final FirestoreItemsRepo firestoreItemsRepo = FirestoreItemsRepo();
-
-  //     await firestoreItemsRepo.importSupplies(data);
-  //   } catch (e) {
-  //     print("error: $e");
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +50,9 @@ class _SupplyListState extends State<SupplyList> {
                 BlocListener<SearchBarBloc, SearchBarState>(
                   listener: (context, state) {
                     if (state is SearchBarInitial) {
-                      context
-                          .read<SuppliesBloc>()
-                          .add(FetchSuppliesEvent(search: state.searchedItem));
+                      context.read<SuppliesBloc>().add(
+                        FetchSuppliesEvent(search: state.searchedItem),
+                      );
                       // FetchToolsEquipmentsData(search: state.searchedItem)
                     }
                   },
@@ -73,9 +61,9 @@ class _SupplyListState extends State<SupplyList> {
                   listener: (context, state) {
                     if (state is AddNewSupplyButtonLoaded) {
                       if (state.success) {
-                        context
-                            .read<SuppliesBloc>()
-                            .add(FetchSuppliesEvent(search: ""));
+                        context.read<SuppliesBloc>().add(
+                          FetchSuppliesEvent(search: ""),
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Insertion failed')),
@@ -100,9 +88,10 @@ class _SupplyListState extends State<SupplyList> {
                       itemCount: supplyList.length,
                       itemBuilder: (context, index) {
                         final supply = supplyList[index];
-                        final String supplyId = supply["id"] != null
-                            ? supply["id"].toString()
-                            : "Supply ID not Found";
+                        final String supplyId =
+                            supply["id"] != null
+                                ? supply["id"].toString()
+                                : "Supply ID not Found";
                         final String supplyName = supply["name"];
                         final String supplyAmount = supply["amount"].toString();
                         final String supplyUnit = supply["unit"];
@@ -114,19 +103,19 @@ class _SupplyListState extends State<SupplyList> {
                               "supplyUnit": supplyUnit,
                               "listIndex": index,
                             };
-                            context
-                                .read<SelectedItemBloc>()
-                                .add(SelectSelectedItemEvent(passedData: data));
-                            // The navigation is in the listener
-                            // Navigator.pushNamed(context, supplyDetailsScreen);
+                            context.read<SelectedItemCubit>().setSelectedItem(
+                              passedData: data,
+                            );
+                            Navigator.pushNamed(context, supplyDetailsScreen);
                           },
                           child: Container(
                             height: 50,
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
-                                    color: Theme.of(context).primaryColor,
-                                    width: 1),
+                                  color: Theme.of(context).primaryColor,
+                                  width: 1,
+                                ),
                               ),
                             ),
                             child: Row(
@@ -135,7 +124,8 @@ class _SupplyListState extends State<SupplyList> {
                                 RowContent(displayText: supplyId),
                                 RowContent(displayText: supplyName),
                                 RowContent(
-                                    displayText: "$supplyAmount - $supplyUnit"),
+                                  displayText: "$supplyAmount - $supplyUnit",
+                                ),
                               ],
                             ),
                           ),
@@ -145,25 +135,20 @@ class _SupplyListState extends State<SupplyList> {
                   } else if (state is SuppliesStateError) {
                     return Text('Error: ${state.error}');
                   } else {
-                    return Center(
-                      child: Text("No Data"),
-                    );
+                    return Center(child: Text("No Data"));
                   }
                 },
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
 }
 
 class Titles extends StatelessWidget {
-  const Titles({
-    super.key,
-    required this.displayText,
-  });
+  const Titles({super.key, required this.displayText});
 
   final String displayText;
 
@@ -173,20 +158,16 @@ class Titles extends StatelessWidget {
       child: Text(
         textAlign: TextAlign.center,
         displayText,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge!
-            .copyWith(fontWeight: FontWeight.bold),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
 class RowContent extends StatelessWidget {
-  const RowContent({
-    super.key,
-    required this.displayText,
-  });
+  const RowContent({super.key, required this.displayText});
 
   final String displayText;
 

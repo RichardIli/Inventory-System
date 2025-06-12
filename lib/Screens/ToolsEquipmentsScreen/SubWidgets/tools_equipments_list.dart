@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/Routes/routes.dart';
-import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemBloc/selected_item_bloc.dart';
+import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/AddToolsEquipmentsButtonBloc/add_tools_equipments_button_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentBloc/tools_equipment_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
 
-class ItemsList extends StatefulWidget {
+class ItemsList extends StatelessWidget {
   const ItemsList({
     super.key,
   });
 
-  @override
-  State<ItemsList> createState() => _ItemsListState();
-}
-
-class _ItemsListState extends State<ItemsList> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -94,9 +89,7 @@ class _ItemsListState extends State<ItemsList> {
                             "itemName": itemName,
                             "itemStatus": itemStatus
                           };
-                          context
-                              .read<SelectedItemBloc>()
-                              .add(SelectSelectedItemEvent(passedData: data));
+                          context.read<SelectedItemCubit>().setSelectedItem(passedData: data);
 
                           Navigator.pushNamed(context, itemDetailsScreen);
                         },
