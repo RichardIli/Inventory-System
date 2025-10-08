@@ -6,10 +6,7 @@ import 'package:inventory_system/bloc/UserScreenBlocs/SelectedUserBloc/selected_
 import 'package:inventory_system/bloc/UserScreenBlocs/UsersBloc/users_bloc.dart';
 
 class UsersList extends StatelessWidget {
-  const UsersList({
-    super.key,
-    required this.scaffoldMessKey,
-  });
+  const UsersList({super.key, required this.scaffoldMessKey});
 
   final GlobalKey<ScaffoldMessengerState> scaffoldMessKey;
 
@@ -20,20 +17,24 @@ class UsersList extends StatelessWidget {
         if (state is SelectedUserLoaded) {
           Navigator.pushNamed(context, userProfile);
         } else if (state is SelectedUserError) {
-          scaffoldMessKey.currentState!.showSnackBar(SnackBar(
-            backgroundColor: AppColors.errorColor,
-            content: Text(
-              state.error,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: Colors.white),
-            ),
-            action: SnackBarAction(
+          scaffoldMessKey.currentState!.showSnackBar(
+            SnackBar(
+              backgroundColor: AppColors.errorColor,
+              content: Text(
+                state.error,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium!.copyWith(color: Colors.white),
+              ),
+              action: SnackBarAction(
                 label: "Close",
-                onPressed: () =>
-                    scaffoldMessKey.currentState!.hideCurrentMaterialBanner()),
-          ));
+                onPressed:
+                    () =>
+                        scaffoldMessKey.currentState!
+                            .hideCurrentMaterialBanner(),
+              ),
+            ),
+          );
         }
       },
       child: Column(
@@ -66,15 +67,15 @@ class UsersList extends StatelessWidget {
                 return Center(child: CircularProgressIndicator());
               } else if (state is UsersStateLoaded) {
                 final usersList = state.data;
-
                 return ListView.builder(
                   shrinkWrap: true,
                   itemCount: usersList.length,
                   itemBuilder: (context, index) {
                     final user = usersList[index];
-                    final String userid = user["id"] != null
-                        ? user["id"].toString()
-                        : "User ID not Found";
+                    final String userid =
+                        user["id"] != null
+                            ? user["id"].toString()
+                            : "User ID not Found";
                     final String userName = user["name"];
                     final String userPosition = user["position"];
                     final String userEmail = user["email"];
@@ -88,11 +89,11 @@ class UsersList extends StatelessWidget {
                           "userPosition": userPosition,
                           "userEmail": userEmail,
                           "userAddress": userAddress,
-                          "userContactNo": userContactNo
+                          "userContactNo": userContactNo,
                         };
-                        context
-                            .read<SelectedUserBloc>()
-                            .add(SelectSelectedUserEvent(userData: userData));
+                        context.read<SelectedUserBloc>().add(
+                          SelectSelectedUserEvent(userData: userData),
+                        );
                         // Navigator.pushNamed(context, userProfile);
                       },
                       child: Container(
@@ -120,12 +121,10 @@ class UsersList extends StatelessWidget {
               } else if (state is UsersStateError) {
                 return Text('Error: ${state.error}');
               } else {
-                return Center(
-                  child: Text("No Data"),
-                );
+                return Center(child: Text("No Data"));
               }
             },
-          )
+          ),
         ],
       ),
     );
@@ -133,10 +132,7 @@ class UsersList extends StatelessWidget {
 }
 
 class Titles extends StatelessWidget {
-  const Titles({
-    super.key,
-    required this.displayText,
-  });
+  const Titles({super.key, required this.displayText});
 
   final String displayText;
 
@@ -146,20 +142,16 @@ class Titles extends StatelessWidget {
       child: Text(
         textAlign: TextAlign.center,
         displayText,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge!
-            .copyWith(fontWeight: FontWeight.bold),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
 class RowContent extends StatelessWidget {
-  const RowContent({
-    super.key,
-    required this.displayText,
-  });
+  const RowContent({super.key, required this.displayText});
 
   final String displayText;
 

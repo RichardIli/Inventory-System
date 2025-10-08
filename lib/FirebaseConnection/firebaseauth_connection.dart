@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
 
 class MyFirebaseAuth {
@@ -9,7 +8,7 @@ class MyFirebaseAuth {
     // required void Function() errorMessage,
     required String emailAddress,
     required String password,
-  })  {
+  }) {
     try {
       final userList = firestoreUsersDbRepository.usersList;
 
@@ -31,10 +30,10 @@ class MyFirebaseAuth {
     }
   }
 
-  void signOut()  {}
+  void signOut() {}
 
   // get the signed in user
-  String getCurrentUserEmail(String userEmail)  {
+  String getCurrentUserEmail(String userEmail) {
     String currentUserEmail = '';
     try {
       return userEmail;
@@ -45,7 +44,7 @@ class MyFirebaseAuth {
 
   //add user to authentication
   void addUserToAuth(
-    BuildContext context,
+    // BuildContext context,
     void Function() weakPass,
     void Function() alreadyExist,
     String userEmailAddress,
@@ -54,32 +53,38 @@ class MyFirebaseAuth {
     String userAddress,
     String userPassword,
     int userContactNo,
-  )  {
+    void Function() refreshList,
+    void Function() closePopup,
+  ) {
     try {
-      
+      // the code bellow is not valid anymore becasue of the cubit that was made
       // add the user to the deatabase
-      FirestoreUsersDbRepository().addUserToDB(
-        // ignore: use_build_context_synchronously
-        context,
-        userEmailAddress,
-        userName,
-        userPosition,
-        userAddress,
-        userPassword,
-        "this is the uid of the account",
-        userContactNo,
-      );
-    }  catch (e) {
+      // FirestoreUsersDbRepository().addUserToDB(
+      //   // ignore: use_build_context_synchronously
+      //   context,
+      //   userEmailAddress,
+      //   userName,
+      //   userPosition,
+      //   userAddress,
+      //   userPassword,
+      //   "this is the uid of the account",
+      //   userContactNo,
+      //   refreshList,
+      //   closePopup,
+      // );
+    } catch (e) {
       //This is error code
       // ignore: avoid_print
       print(e);
     }
   }
 
-  String fetchAuthenticatedUserData(String? email)  {
-    FirestoreUsersDbRepository firestoreUsersDbRepository = FirestoreUsersDbRepository();
+  String fetchAuthenticatedUserData(String? email) {
+    FirestoreUsersDbRepository firestoreUsersDbRepository =
+        FirestoreUsersDbRepository();
     final users = firestoreUsersDbRepository.usersList;
-    final username = users.where((element)=>element["email"]==email).toList().first;
+    final username =
+        users.where((element) => element["email"] == email).toList().first;
     return username["name"];
   }
 }

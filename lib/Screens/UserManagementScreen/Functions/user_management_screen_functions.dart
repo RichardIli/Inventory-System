@@ -1,20 +1,15 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
-import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
 import 'package:inventory_system/Screens/UserManagementScreen/SubWidgets/details_field.dart';
+import 'package:inventory_system/bloc/UserScreenBlocs/AddUserCubit/add_user_cubit.dart';
+import 'package:inventory_system/bloc/UserScreenBlocs/UsersBloc/users_bloc.dart';
 
 class UserManagementScreenFunctions {
-  UserManagementScreenFunctions({
-    required this.scaffoldContext,
-  });
+  UserManagementScreenFunctions({required this.scaffoldContext});
 
   final BuildContext scaffoldContext;
 
-  Future<dynamic> addNewUserDialog(
-    BuildContext context,
-  ) {
+  Future<dynamic> addNewUserDialog(BuildContext context) {
     TextEditingController userNameController = TextEditingController();
     TextEditingController userPasswordController = TextEditingController();
     TextEditingController userPositionController = TextEditingController();
@@ -30,8 +25,9 @@ class UserManagementScreenFunctions {
         return Form(
           key: formKey,
           child: AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             backgroundColor: Colors.white,
             title: Text("Add New User"),
             content: IntrinsicHeight(
@@ -91,9 +87,7 @@ class UserManagementScreenFunctions {
                       onPressed: () async {
                         // validating that all the neccessary field is filled
                         if (formKey.currentState!.validate()) {
-                          // another layer of data validation
-                           callAddUserFromBackEnd(
-                            context,
+                          context.read<AddUserCubit>().addNewUser(
                             weakPass,
                             emailAlreadyExist,
                             userEmailController.text,
@@ -102,24 +96,40 @@ class UserManagementScreenFunctions {
                             userPositionController.text,
                             userAddressController.text,
                             userContactNoController.text,
+                            userNameAlreadyExist,
+                            notContactNo,
+                            notEmailAddress,
+                            () {
+                              // refresh the user list
+                              context.read<UsersBloc>().add(FetchUsersEvent());
+                            },
+                            () {
+                              Navigator.pop(context);
+                            },
                           );
                         } else {
                           showCustomSnackbar(
-                              // context: context,
-                              message: "Fill all the Field");
+                            // context: context,
+                            message: "Fill all the Field",
+                          );
                         }
                       },
                       style: ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(Colors.blue)),
-                      child: Text("ADD",
-                          style: Theme.of(context).textTheme.bodyMedium),
+                        backgroundColor: WidgetStatePropertyAll(Colors.blue),
+                      ),
+                      child: Text(
+                        "ADD",
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: ButtonStyle(
-                        side: WidgetStatePropertyAll(
-                            BorderSide(color: Colors.black, width: 1))),
+                      side: WidgetStatePropertyAll(
+                        BorderSide(color: Colors.black, width: 1),
+                      ),
+                    ),
                     child: Text(
                       "Cancel",
                       style: Theme.of(context).textTheme.bodyMedium,
@@ -136,10 +146,7 @@ class UserManagementScreenFunctions {
 
   void showCustomSnackbar({required String message}) {
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(seconds: 5),
-      ),
+      SnackBar(content: Text(message), duration: Duration(seconds: 5)),
     );
   }
 
@@ -161,64 +168,5 @@ class UserManagementScreenFunctions {
 
   void userNameAlreadyExist() {
     showCustomSnackbar(message: "User name already Exist");
-  }
-
-  void callAddUserFromBackEnd(
-    BuildContext context,
-    void Function() weakPass,
-    void Function() emailAlreadyExist,
-    String userEmailAddress,
-    String userName,
-    String userPassword,
-    String userPosition,
-    String userAddress,
-    String userContactNo,
-  )  {
-    MyFirebaseAuth myFirebaseAuth =
-        RepositoryProvider.of<MyFirebaseAuth>(context);
-
-    FirestoreUsersDbRepository userDbrepository =
-        RepositoryProvider.of<FirestoreUsersDbRepository>(context);
-
-    // verification of emmail address
-    if (isEmail(userEmailAddress)) {
-      // verrification of contact number
-      if (isNumber(userContactNo)) {
-        // check if the user is already in the database to prevent data duplication
-        var searchUser =
-             userDbrepository.searchUserData(userName.toUpperCase());
-        if (searchUser.isEmpty) {
-          // convert the data from string to int
-          final int contacNo = int.parse(userContactNo);
-          // craeting user authentication
-           myFirebaseAuth.addUserToAuth(
-            // ignore: use_build_context_synchronously
-            context,
-            weakPass,
-            emailAlreadyExist,
-            userEmailAddress,
-            userName.toUpperCase(),
-            userPosition.toUpperCase(),
-            userAddress.toUpperCase(),
-            userPassword,
-            contacNo,
-          );
-        } else {
-          userNameAlreadyExist();
-        }
-      } else {
-        notContactNo();
-      }
-    } else {
-      notEmailAddress();
-    }
-  }
-
-  bool isEmail(String userEmailAddress) {
-    return EmailValidator.validate(userEmailAddress);
-  }
-
-  bool isNumber(String str) {
-    return int.tryParse(str) != null;
   }
 }

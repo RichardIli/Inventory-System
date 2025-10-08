@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class FirestoreUsersDbRepository {
   // Create new User
   void addUserToDB(
-    BuildContext context,
+    // BuildContext context,
     String emailAddress,
     String name,
     String position,
@@ -11,6 +11,8 @@ class FirestoreUsersDbRepository {
     String password,
     String uid,
     int contactNo,
+    void Function() refreshList,
+    void Function() closePopup,
   ) {
     int id = usersList.length + 1;
 
@@ -28,23 +30,28 @@ class FirestoreUsersDbRepository {
 
     usersList.add(userData);
 
+    refreshList();
+
+    closePopup();
+
     // ignore: use_build_context_synchronously
-    Navigator.pop(context);
+    // Navigator.pop(context);
   }
 
   // Read/Get all user
   List<Map<String, dynamic>> usersData() {
-    List<Map<String, dynamic>>? rawDatas = [];
+    // List<Map<String, dynamic>>? rawDatas = [];
 
     try {
-      List<Map<String, dynamic>> activeAccount =
+      final List<Map<String, dynamic>> activeAccount =
           usersList.where((item) => item["isActive"] == true).toList();
 
       return activeAccount;
     } catch (e) {
-      // ignore: avoid_print
-      print(e);
-      return rawDatas;
+      if (kDebugMode) {
+        print(e);
+      }
+      return [];
     }
     // This is how you access the data
     // print(datas[0]["name"]);
@@ -55,9 +62,10 @@ class FirestoreUsersDbRepository {
     List<Map<String, dynamic>>? datas = [];
 
     try {
-      final searchedUser = usersList.where(
-        (element) => element["name"] == searchedName,
-      ).toList();
+      final searchedUser =
+          usersList
+              .where((element) => element["name"] == searchedName)
+              .toList();
       return searchedUser;
     } catch (e) {
       // ignore: avoid_print
@@ -67,15 +75,14 @@ class FirestoreUsersDbRepository {
   }
 
   // Use a query to filter documents based on the "name" field
-  List<Map<String, dynamic>> getUserDataBasedOnEmail(
-    String emailAddress,
-  )  {
+  List<Map<String, dynamic>> getUserDataBasedOnEmail(String emailAddress) {
     List<Map<String, dynamic>>? datas = [];
 
     try {
-      final userData = usersList.where(
-        (element) => element["email"] == emailAddress,
-      ).toList();
+      final userData =
+          usersList
+              .where((element) => element["email"] == emailAddress)
+              .toList();
       return userData;
     } catch (e) {
       // ignore: avoid_print
@@ -84,7 +91,7 @@ class FirestoreUsersDbRepository {
     }
   }
 
-  List<Map<String, dynamic>> usersList = [
+  final List<Map<String, dynamic>> usersList = [
     {
       'address': '123 Main St, Anytown',
       'contactNo': '09123456789',

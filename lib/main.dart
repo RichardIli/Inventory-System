@@ -20,10 +20,11 @@ import 'package:inventory_system/bloc/SuppliesScreenBlocs/SuppliesBloc/supplies_
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/GroupOfToolsEquipmentsCountByNameBloc/group_of_tools_equipments_count_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentBloc/tools_equipment_bloc.dart';
 import 'package:inventory_system/bloc/TransmitalHistoryScreenBlocs/TransmitalHistoryListBloc/transmital_history_list_bloc.dart';
+import 'package:inventory_system/bloc/UserScreenBlocs/AddUserCubit/add_user_cubit.dart';
 import 'package:inventory_system/bloc/UserScreenBlocs/SelectedUserBloc/selected_user_bloc.dart';
 import 'package:inventory_system/bloc/UserScreenBlocs/UsersBloc/users_bloc.dart';
 
-void main()  {
+void main() {
   runApp(const MyApp());
 }
 
@@ -39,11 +40,13 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (context) => MyFirebaseAuth()),
         RepositoryProvider(create: (context) => FirestoreUsersDbRepository()),
         RepositoryProvider(
-            create: (context) => FirestoreToolsEquipmentDBRepository()),
+          create: (context) => FirestoreToolsEquipmentDBRepository(),
+        ),
         RepositoryProvider(create: (context) => FirestoreSuppliesDb()),
         RepositoryProvider(create: (context) => FirestoreSuppliesDb()),
         RepositoryProvider(
-            create: (context) => FirestoreTransmitalHistoryRepo()),
+          create: (context) => FirestoreTransmitalHistoryRepo(),
+        ),
         RepositoryProvider(create: (context) => FirestoreOfficeSupplies()),
       ],
       // provide some of the bloc so the will persist in the whole application runtime
@@ -51,49 +54,94 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(create: (context) => SideMenuBloc()),
           BlocProvider(
-              create: (context) => UserNameAppbarBloc(
+            create:
+                (context) => UserNameAppbarBloc(
                   auth: RepositoryProvider.of<MyFirebaseAuth>(context),
                   userRepository:
                       RepositoryProvider.of<FirestoreUsersDbRepository>(
-                          context))),
+                        context,
+                      ),
+                ),
+          ),
           BlocProvider(
-              create: (context) => DashboardUsersCountBloc(
-                  RepositoryProvider.of<FirestoreUsersDbRepository>(context))),
-          
+            create:
+                (context) => DashboardUsersCountBloc(
+                  RepositoryProvider.of<FirestoreUsersDbRepository>(context),
+                ),
+          ),
+
           BlocProvider(create: (context) => SelectedUserBloc()),
           BlocProvider(
-              create: (context) => DashboardToolsEquipmentsOutsideListBloc(
+            create:
+                (context) => DashboardToolsEquipmentsOutsideListBloc(
                   RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
-                      context))),
+                    context,
+                  ),
+                ),
+          ),
           BlocProvider(
-              create: (context) => QrGeneratorBloc(
-                  RepositoryProvider.of<QrCodeGeneratorRepository>(context))),
+            create:
+                (context) => QrGeneratorBloc(
+                  RepositoryProvider.of<QrCodeGeneratorRepository>(context),
+                ),
+          ),
           BlocProvider(
-              create: (context) => SuppliesBloc(
-                  RepositoryProvider.of<FirestoreSuppliesDb>(context))),
+            create:
+                (context) => SuppliesBloc(
+                  RepositoryProvider.of<FirestoreSuppliesDb>(context),
+                ),
+          ),
           BlocProvider(
-              create: (context) => SaveQrCodeButtonBloc(
+            create:
+                (context) => SaveQrCodeButtonBloc(
                   qrCodeGeneratorRepository:
-                      RepositoryProvider.of<QrCodeGeneratorRepository>(
-                          context))),
+                      RepositoryProvider.of<QrCodeGeneratorRepository>(context),
+                ),
+          ),
           BlocProvider(
-              create: (context) => ToolsEquipmentBloc(
-                    RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
-                        context),
-                  )),
+            create:
+                (context) => ToolsEquipmentBloc(
+                  RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
+                    context,
+                  ),
+                ),
+          ),
           BlocProvider(
-              create: (context) => GroupOfToolsEquipmentsCountByNameBloc(
+            create:
+                (context) => GroupOfToolsEquipmentsCountByNameBloc(
                   toolsEquipmentsRepository: RepositoryProvider.of<
-                      FirestoreToolsEquipmentDBRepository>(context))),
+                    FirestoreToolsEquipmentDBRepository
+                  >(context),
+                ),
+          ),
           BlocProvider(
-              create: (context) => TransmitalHistoryListBloc(
+            create:
+                (context) => TransmitalHistoryListBloc(
                   transmitalHistoryRepo:
                       RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
-                          context))),
+                        context,
+                      ),
+                ),
+          ),
           BlocProvider(
-              create: (context) => UsersBloc(
-                  RepositoryProvider.of<FirestoreUsersDbRepository>(context))),
-          BlocProvider(create: (context)=> SelectedItemCubit())
+            create:
+                (context) => UsersBloc(
+                  RepositoryProvider.of<FirestoreUsersDbRepository>(context),
+                ),
+          ),
+          BlocProvider(create: (context) => SelectedItemCubit()),
+          BlocProvider(
+            create:
+                (context) => AddUserCubit(
+                  myFirebaseAuth: RepositoryProvider.of<MyFirebaseAuth>(
+                    context,
+                  ),
+                  userDbrepository:
+                      RepositoryProvider.of<FirestoreUsersDbRepository>(
+                        context,
+                      ),
+                ),
+          ),
         ],
         child: MaterialApp(
           title: 'Inventory System',

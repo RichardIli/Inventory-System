@@ -44,7 +44,9 @@ class FirestoreToolsEquipmentDBRepository {
     try {
       final filteredData =
           toolsEquipmentList
-              .where((element) => (element["name"] as String).toUpperCase() == name)
+              .where(
+                (element) => (element["name"] as String).toUpperCase() == name,
+              )
               .toList();
       return filteredData.first;
     } catch (e) {
@@ -161,7 +163,7 @@ class FirestoreToolsEquipmentDBRepository {
           : (toolsEquipmentList[itemIndex]['history']
                   as List<Map<String, dynamic>>)
               .add(data);
-              
+
       if (kDebugMode) {
         print('History added successfully for item ID: $id');
       }
@@ -217,10 +219,10 @@ class FirestoreToolsEquipmentDBRepository {
 
   bool addNewItem(String itemName, String processedBy) {
     try {
-      String unqueID = toolsEquipmentList.length.toString();
+      String uniqueID = toolsEquipmentList.length.toString();
 
       Map<String, dynamic> itemData = {
-        "id": unqueID,
+        "id": uniqueID,
         "name": itemName,
         "isArchive": false,
         "status": "STORE ROOM",
@@ -233,7 +235,18 @@ class FirestoreToolsEquipmentDBRepository {
         "inDate": DateTime.now(),
       };
 
-      _newHistory(unqueID.toString(), historyData);
+      final Map<String, dynamic> datas = {
+        "processedBy": processedBy,
+        "releaseDate": DateTime.now(),
+        "outBy": outBy,
+        "requestBy": requestBy,
+        "receivedOnSiteBy": receivedOnSiteBy,
+      };
+
+      _newHistory(uniqueID.toString(), historyData);
+
+      // TODO:FIx this bullshit
+      _firestoreTransmitalHistoryRepo.recordHistory(uniqueID, historyData);
 
       return true;
     } catch (e) {
@@ -251,7 +264,7 @@ class FirestoreToolsEquipmentDBRepository {
     String requestBy,
     String receivedOnSiteBy,
   ) {
-    Map<String, Object?> datas = {
+    final Map<String, dynamic> datas = {
       "processedBy": processedBy,
       "releaseDate": DateTime.now(),
       "outBy": outBy,
@@ -264,7 +277,7 @@ class FirestoreToolsEquipmentDBRepository {
 
       _newHistory(id.toString(), datas);
 
-      _firestoreTransmitalHistoryRepo.recordHistory(id, datas);
+      _firestoreTransmitalHistoryRepo.recordHistory(id.toString(), datas);
     } catch (e) {
       // ignore: avoid_print
       print(e);
@@ -340,330 +353,330 @@ class FirestoreToolsEquipmentDBRepository {
     }
   }
 
-final List<Map<String, dynamic>> toolsEquipmentList = [
-  {
-    'amountReleased': 0,
-    'id': '0',
-    'isSupply': false,
-    'name': 'Hammer',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "John Doe",
-        'outBy': "Alice Smith",
-        'receivedOnSiteBy': "Jane Doe",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '1',
-    'isSupply': false,
-    'name': 'Screwdriver Set',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '2',
-    'isSupply': false,
-    'name': 'Measuring Tape',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "Michael Johnson",
-        'outBy': "Alice Smith",
-        
-        'receivedOnSiteBy': "Emily Davis",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '3',
-    'isSupply': false,
-    'name': 'Utility Knife',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '4',
-    'isSupply': false,
-    'name': 'Pliers',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "Chris Brown",
-        'outBy': "Alice Smith",
-        
-        'receivedOnSiteBy': "Sarah Wilson",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '5',
-    'isSupply': false,
-    'name': 'Wrench Set',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '6',
-    'isSupply': false,
-    'name': 'Level',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "David Smith",
-        'outBy': "Alice Smith",
-        
-        'receivedOnSiteBy': "Laura Taylor",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '7',
-    'isSupply': false,
-    'name': 'Circular Saw',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '8',
-    'isSupply': false,
-    'name': 'Drill (Cordless)',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "John Doe",
-        'outBy': "Alice Smith",
-        
-        'receivedOnSiteBy': "Jane Doe",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '9',
-    'isSupply': false,
-    'name': 'Jigsaw',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '10',
-    'isSupply': false,
-    'name': 'Angle Grinder',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "Michael Johnson",
-        'outBy': "Alice Smith",
-        'receivedOnSiteBy': "Emily Davis",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '11',
-    'isSupply': false,
-    'name': 'Safety Glasses',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '12',
-    'isSupply': false,
-    'name': 'Work Gloves',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "Chris Brown",
-        'outBy': "Alice Smith",
-        'receivedOnSiteBy': "Sarah Wilson",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '13',
-    'isSupply': false,
-    'name': 'Hard Hat',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '14',
-    'isSupply': false,
-    'name': 'Wheelbarrow',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "David Smith",
-        'outBy': "Alice Smith",
-        'receivedOnSiteBy': "Laura Taylor",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '15',
-    'isSupply': false,
-    'name': 'Shovel',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '16',
-    'isSupply': false,
-    'name': 'Pickaxe',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "John Doe",
-        'outBy': "Alice Smith",
-        'receivedOnSiteBy': "Jane Doe",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '17',
-    'isSupply': false,
-    'name': 'Ladder',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '18',
-    'isSupply': false,
-    'name': 'Paint Roller Set',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'OUTSIDE',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-      {
-        'outDate': "2024-06-16T12:00:00.000Z",
-        'requestBy': "Michael Johnson",
-        'outBy': "Alice Smith",
-        'receivedOnSiteBy': "Emily Davis",
-      },
-    ],
-  },
-  {
-    'amountReleased': 0,
-    'id': '19',
-    'isSupply': false,
-    'name': 'Caulking Gun',
-    'remainingAmount': 1,
-    'totalAmount': 1,
-    'isArchive': false,
-    'status': 'STORE ROOM',
-    'history': [
-      {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
-    ],
-  },
-];
+  final List<Map<String, dynamic>> toolsEquipmentList = [
+    {
+      'amountReleased': 0,
+      'id': '0',
+      'isSupply': false,
+      'name': 'Hammer',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "John Doe",
+          'outBy': "Alice Smith",
+          'receivedOnSiteBy': "Jane Doe",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '1',
+      'isSupply': false,
+      'name': 'Screwdriver Set',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '2',
+      'isSupply': false,
+      'name': 'Measuring Tape',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "Michael Johnson",
+          'outBy': "Alice Smith",
+
+          'receivedOnSiteBy': "Emily Davis",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '3',
+      'isSupply': false,
+      'name': 'Utility Knife',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '4',
+      'isSupply': false,
+      'name': 'Pliers',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "Chris Brown",
+          'outBy': "Alice Smith",
+
+          'receivedOnSiteBy': "Sarah Wilson",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '5',
+      'isSupply': false,
+      'name': 'Wrench Set',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '6',
+      'isSupply': false,
+      'name': 'Level',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "David Smith",
+          'outBy': "Alice Smith",
+
+          'receivedOnSiteBy': "Laura Taylor",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '7',
+      'isSupply': false,
+      'name': 'Circular Saw',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '8',
+      'isSupply': false,
+      'name': 'Drill (Cordless)',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "John Doe",
+          'outBy': "Alice Smith",
+
+          'receivedOnSiteBy': "Jane Doe",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '9',
+      'isSupply': false,
+      'name': 'Jigsaw',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '10',
+      'isSupply': false,
+      'name': 'Angle Grinder',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "Michael Johnson",
+          'outBy': "Alice Smith",
+          'receivedOnSiteBy': "Emily Davis",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '11',
+      'isSupply': false,
+      'name': 'Safety Glasses',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '12',
+      'isSupply': false,
+      'name': 'Work Gloves',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "Chris Brown",
+          'outBy': "Alice Smith",
+          'receivedOnSiteBy': "Sarah Wilson",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '13',
+      'isSupply': false,
+      'name': 'Hard Hat',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '14',
+      'isSupply': false,
+      'name': 'Wheelbarrow',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "David Smith",
+          'outBy': "Alice Smith",
+          'receivedOnSiteBy': "Laura Taylor",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '15',
+      'isSupply': false,
+      'name': 'Shovel',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '16',
+      'isSupply': false,
+      'name': 'Pickaxe',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "John Doe",
+          'outBy': "Alice Smith",
+          'receivedOnSiteBy': "Jane Doe",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '17',
+      'isSupply': false,
+      'name': 'Ladder',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '18',
+      'isSupply': false,
+      'name': 'Paint Roller Set',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'OUTSIDE',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+        {
+          'outDate': "2024-06-16T12:00:00.000Z",
+          'requestBy': "Michael Johnson",
+          'outBy': "Alice Smith",
+          'receivedOnSiteBy': "Emily Davis",
+        },
+      ],
+    },
+    {
+      'amountReleased': 0,
+      'id': '19',
+      'isSupply': false,
+      'name': 'Caulking Gun',
+      'remainingAmount': 1,
+      'totalAmount': 1,
+      'isArchive': false,
+      'status': 'STORE ROOM',
+      'history': [
+        {"inDate": "2024-03-10T09:00:00.000Z", "processedBy": "Alice Smith"},
+      ],
+    },
+  ];
 }

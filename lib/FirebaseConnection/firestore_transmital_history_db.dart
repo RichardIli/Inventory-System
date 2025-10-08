@@ -4,6 +4,7 @@ class FirestoreTransmitalHistoryRepo {
     Map<String, dynamic> data,
   )  {
     try {
+      // TODO: make an option where if the id is not found then or if its for new item
       // Inserting id and name to the passed history data.
 
       final fetchedDocFromGivenCollection =
