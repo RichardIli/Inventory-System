@@ -7,12 +7,10 @@ import 'package:inventory_system/Models/supply_model.dart';
 import 'dart:html' as html;
 
 class FirestoreOfficeSupplies {
-
-
   final FirestoreTransmitalHistoryRepo _transmitalHistoryRepo =
       FirestoreTransmitalHistoryRepo();
 
-void _newHistory(String id, String name, Map<String, dynamic> data) {
+  void _newHistory(String id, String name, Map<String, dynamic> data) {
     // Find the item in the list by its ID
     final itemIndex = officeSuppliesList.indexWhere((item) => item['id'] == id);
     final history =
@@ -22,14 +20,14 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
 
     officeSuppliesList[itemIndex]["history"].add(data);
 
-    _transmitalHistoryRepo.recordHistory( id, data);
+    _transmitalHistoryRepo.recordHistory(data);
   }
 
-  String createUniqueId()  {
+  String createUniqueId() {
     // Get the current year
     final currentYear = DateTime.now().year.toString();
 
-    final supplies =  fetchItems();
+    final supplies = fetchItems();
 
     int c = 0;
 
@@ -47,17 +45,20 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
     return newId;
   }
 
-  List<SupplyDataModel> fetchItems()  {
+  List<SupplyDataModel> fetchItems() {
     try {
-
-           List<SupplyDataModel> data = officeSuppliesList
-          // .map((doc) => doc.data())
-          .map((doc) => SupplyDataModel(
-              amount: doc["amount"],
-              id: doc["id"].toString(),
-              name: doc["name"],
-              unit: doc["unit"]))
-          .toList();
+      List<SupplyDataModel> data =
+          officeSuppliesList
+              // .map((doc) => doc.data())
+              .map(
+                (doc) => SupplyDataModel(
+                  amount: doc["amount"],
+                  id: doc["id"].toString(),
+                  name: doc["name"],
+                  unit: doc["unit"],
+                ),
+              )
+              .toList();
 
       return data;
     } catch (e) {
@@ -67,7 +68,7 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
   }
 
   // Create new Supply
-  bool addNewOfficeSupply(SupplyDataModel supplyData)  {
+  bool addNewOfficeSupply(SupplyDataModel supplyData) {
     try {
       String uniqueID = officeSuppliesList.length.toString();
 
@@ -101,7 +102,7 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
     String requestBy,
     String outBy,
     String receivedOnSiteBy,
-  )  {
+  ) {
     Map<String, dynamic> filteredSupply = filterSupplyByExactId(id);
 
     double storedAmount = filteredSupply["amount"];
@@ -125,10 +126,13 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
     return true;
   }
 
-  Map<String, dynamic> filterSupplyByExactId(String id)  {
-        try {
+  Map<String, dynamic> filterSupplyByExactId(String id) {
+    try {
       final datas =
-          officeSuppliesList.where((element) => element["id"] == id).toList().first;
+          officeSuppliesList
+              .where((element) => element["id"] == id)
+              .toList()
+              .first;
       return datas;
       //If querySnapshot is empty, data will remain {} and be returned.
     } catch (e) {
@@ -139,7 +143,7 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
     }
   }
 
-  Map<String, dynamic> filterSupplyByExactName(String name)  {
+  Map<String, dynamic> filterSupplyByExactName(String name) {
     try {
       final datas =
           officeSuppliesList
@@ -156,11 +160,7 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
     }
   }
 
-  bool restockSupply(
-    String processedBy,
-    String id,
-    double inAmount,
-  )  {
+  bool restockSupply(String processedBy, String id, double inAmount) {
     try {
       Map<String, dynamic> filteredSupply = filterSupplyByExactId(id);
 
@@ -174,7 +174,9 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
         "inDate": DateTime.now(),
       };
 
-      final itemIndex = officeSuppliesList.indexWhere((item) => item['id'] == id);
+      final itemIndex = officeSuppliesList.indexWhere(
+        (item) => item['id'] == id,
+      );
 
       officeSuppliesList[itemIndex]["amount"] = newAmount;
 
@@ -182,13 +184,12 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
 
       return true;
     } catch (e) {
-      
       print(e);
       return false;
     }
   }
 
-  List<Map<String, dynamic>> filterSuppliesById(String id)  {
+  List<Map<String, dynamic>> filterSuppliesById(String id) {
     try {
       final List<Map<String, dynamic>> suppliesData = officeSuppliesList;
 
@@ -196,28 +197,10 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
 
       List<Map<String, dynamic>> filteredToolsEquipmentData =
           suppliesData
-              .where((tool) => (tool["id"] as String).toUpperCase().contains(searchUperCase))
-              .toList();
-
-      return filteredToolsEquipmentData;
-    } catch (e) {
-      if (kDebugMode) {
-        print("General Exception: $e");
-      }
-      return [];
-    }
-  }
-
-  List<Map<String, dynamic>> filterSuppliesByName(String name)  {
-    try {
-      final List<Map<String, dynamic>> suppliesData = officeSuppliesList;
-
-      final String searchUperCase = name.toUpperCase();
-
-      List<Map<String, dynamic>> filteredToolsEquipmentData =
-          suppliesData
               .where(
-                (tool) => (tool["name"] as String).toUpperCase().contains(searchUperCase),
+                (tool) => (tool["id"] as String).toUpperCase().contains(
+                  searchUperCase,
+                ),
               )
               .toList();
 
@@ -230,9 +213,31 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
     }
   }
 
-  List<Map<String, dynamic>> supplyHistory(
-    String id,
-  )  {
+  List<Map<String, dynamic>> filterSuppliesByName(String name) {
+    try {
+      final List<Map<String, dynamic>> suppliesData = officeSuppliesList;
+
+      final String searchUperCase = name.toUpperCase();
+
+      List<Map<String, dynamic>> filteredToolsEquipmentData =
+          suppliesData
+              .where(
+                (tool) => (tool["name"] as String).toUpperCase().contains(
+                  searchUperCase,
+                ),
+              )
+              .toList();
+
+      return filteredToolsEquipmentData;
+    } catch (e) {
+      if (kDebugMode) {
+        print("General Exception: $e");
+      }
+      return [];
+    }
+  }
+
+  List<Map<String, dynamic>> supplyHistory(String id) {
     List<Map<String, dynamic>> history = [];
     try {
       // Find the item in the list by its ID
@@ -258,68 +263,17 @@ void _newHistory(String id, String name, Map<String, dynamic> data) {
       return history;
     }
   }
-  
-  List<Map<String, dynamic>> officeSuppliesList = [
-  {
-    'amount': 100,
-    'id': '0',
-    'name': 'Pens (Blue Ink)',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 50,
-    'id': '1',
-    'name': 'Notebooks (A4)',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 20,
-    'id': '2',
-    'name': 'Stapler',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 1000,
-    'id': '3',
-    'name': 'Staples',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 5,
-    'id': '4',
-    'name': 'Highlighters (Assorted)',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 10,
-    'id': '5',
-    'name': 'Correction Fluid',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 2,
-    'id': '6',
-    'name': 'Printer Paper (Ream)',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 15,
-    'id': '7',
-    'name': 'Sticky Notes',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 3,
-    'id': '8',
-    'name': 'Scissors',
-    'unit': 'PCS',
-  },
-  {
-    'amount': 1,
-    'id': '9',
-    'name': 'Desk Organizer',
-    'unit': 'PCS',
-  },
-];
 
+  List<Map<String, dynamic>> officeSuppliesList = [
+    {'amount': 100, 'id': '0', 'name': 'Pens (Blue Ink)', 'unit': 'PCS'},
+    {'amount': 50, 'id': '1', 'name': 'Notebooks (A4)', 'unit': 'PCS'},
+    {'amount': 20, 'id': '2', 'name': 'Stapler', 'unit': 'PCS'},
+    {'amount': 1000, 'id': '3', 'name': 'Staples', 'unit': 'PCS'},
+    {'amount': 5, 'id': '4', 'name': 'Highlighters (Assorted)', 'unit': 'PCS'},
+    {'amount': 10, 'id': '5', 'name': 'Correction Fluid', 'unit': 'PCS'},
+    {'amount': 2, 'id': '6', 'name': 'Printer Paper (Ream)', 'unit': 'PCS'},
+    {'amount': 15, 'id': '7', 'name': 'Sticky Notes', 'unit': 'PCS'},
+    {'amount': 3, 'id': '8', 'name': 'Scissors', 'unit': 'PCS'},
+    {'amount': 1, 'id': '9', 'name': 'Desk Organizer', 'unit': 'PCS'},
+  ];
 }

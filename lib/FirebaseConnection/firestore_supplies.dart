@@ -21,7 +21,7 @@ class FirestoreSuppliesDb {
 
     suppliesList[itemIndex]["history"].add(data);
 
-    _transmitalHistoryRepo.recordHistory( id, data);
+    _transmitalHistoryRepo.recordHistory( data);
   }
 
   Map<String, dynamic> filterSupplyByExactName(String name) {

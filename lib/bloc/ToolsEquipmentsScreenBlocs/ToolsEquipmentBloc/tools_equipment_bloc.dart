@@ -9,21 +9,24 @@ class ToolsEquipmentBloc
     extends Bloc<ToolsEquipmentListEvent, ToolsEquipmentsState> {
   final FirestoreToolsEquipmentDBRepository toolsEquipmentsDb;
   ToolsEquipmentBloc(this.toolsEquipmentsDb) : super(ToolsEquipmentsInitial()) {
-    on<FetchToolsEquipmentsData>((event, emit)  {
+    on<FetchToolsEquipmentsData>((event, emit) {
       emit(ToolsEquipmentsLoading());
       try {
         if (event.search.isNotEmpty || event.search != "") {
           if (isID(event.search)) {
-            final data =
-                 toolsEquipmentsDb.filterToolsEquipmentsByID(event.search);
+            final data = toolsEquipmentsDb.filterToolsEquipmentsByID(
+              event.search,
+            );
+            print(data);
             emit(ToolsEquipmentsLoaded(data));
           } else {
-            final data =  toolsEquipmentsDb
-                .filterToolsEquipmentsByName(event.search);
+            final data = toolsEquipmentsDb.filterToolsEquipmentsByName(
+              event.search,
+            );
             emit(ToolsEquipmentsLoaded(data));
           }
         } else {
-          final data =  toolsEquipmentsDb.toolsEquipmentsData();
+          final data = toolsEquipmentsDb.toolsEquipmentsData();
           emit(ToolsEquipmentsLoaded(data));
         }
       } catch (e) {

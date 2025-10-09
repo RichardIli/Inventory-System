@@ -152,24 +152,33 @@ class FirestoreToolsEquipmentDBRepository {
   }
 
   void _newHistory(String id, Map<String, dynamic> data) {
-    // Find the item in the list by its ID
-    final itemIndex = toolsEquipmentList.indexWhere((item) => item['id'] == id);
+    try {
+      // Find the item in the list by its ID
+      final itemIndex = toolsEquipmentList.indexWhere(
+        (item) => item['id'] == id,
+      );
 
-    if (itemIndex != -1) {
-      // If the item is found, add the new history entry to its 'history' list
-      final history = toolsEquipmentList[itemIndex]['history'];
-      history == null
-          ? toolsEquipmentList[itemIndex]['history'] = [data]
-          : (toolsEquipmentList[itemIndex]['history']
-                  as List<Map<String, dynamic>>)
-              .add(data);
+      if (itemIndex != -1) {
+        // If the item is found, add the new history entry to its 'history' list
+        final history = toolsEquipmentList[itemIndex]['history'];
+        print(history);
+        print(history.runtimeType);
+        history == null
+            ? toolsEquipmentList[itemIndex]['history'] = [data]
+            : toolsEquipmentList[itemIndex]['history'].add(data);
 
-      if (kDebugMode) {
-        print('History added successfully for item ID: $id');
+        if (kDebugMode) {
+          print('History added successfully for item ID: $id');
+        }
+      } else {
+        if (kDebugMode) {
+          print('Item with ID $id not found.');
+        }
       }
-    } else {
+
+    } catch (e) {
       if (kDebugMode) {
-        print('Item with ID $id not found.');
+        print('History error: $e');
       }
     }
   }
@@ -212,8 +221,9 @@ class FirestoreToolsEquipmentDBRepository {
       );
       toolsEquipmentList[itemIndex]["status"] = status;
     } catch (e) {
-      // ignore: avoid_print
-      print(e);
+      if (kDebugMode) {
+        print('Sattus error:$e');
+      }
     }
   }
 
@@ -235,18 +245,15 @@ class FirestoreToolsEquipmentDBRepository {
         "inDate": DateTime.now(),
       };
 
-      final Map<String, dynamic> datas = {
-        "processedBy": processedBy,
-        "releaseDate": DateTime.now(),
-        "outBy": outBy,
-        "requestBy": requestBy,
-        "receivedOnSiteBy": receivedOnSiteBy,
-      };
+      // final Map<String, dynamic> datas = {
+      //   "name": itemName,
+      //   "processedBy": processedBy,
+      //   "inDate": DateTime.now(),
+      // };
 
       _newHistory(uniqueID.toString(), historyData);
 
-      // TODO:FIx this bullshit
-      _firestoreTransmitalHistoryRepo.recordHistory(uniqueID, historyData);
+      // _firestoreTransmitalHistoryRepo.recordNewItemHistory(uniqueID, datas);
 
       return true;
     } catch (e) {
@@ -257,30 +264,15 @@ class FirestoreToolsEquipmentDBRepository {
     }
   }
 
-  void outItem(
-    String id,
-    String processedBy,
-    String outBy,
-    String requestBy,
-    String receivedOnSiteBy,
-  ) {
-    final Map<String, dynamic> datas = {
-      "processedBy": processedBy,
-      "releaseDate": DateTime.now(),
-      "outBy": outBy,
-      "requestBy": requestBy,
-      "receivedOnSiteBy": receivedOnSiteBy,
-    };
-
+  void outItem(String id, Map<String, dynamic> forHistoryDatas) {
     try {
       _updateItemStatus(id: id.toString(), status: "OUTSIDE");
 
-      _newHistory(id.toString(), datas);
-
-      _firestoreTransmitalHistoryRepo.recordHistory(id.toString(), datas);
+      // _newHistory(id.toString(), forHistoryDatas);
     } catch (e) {
-      // ignore: avoid_print
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -308,7 +300,7 @@ class FirestoreToolsEquipmentDBRepository {
 
       _updateItemStatus(id: id.toString(), status: "STORE ROOM");
 
-      _firestoreTransmitalHistoryRepo.recordHistory(id, datas);
+      _firestoreTransmitalHistoryRepo.recordHistory(datas);
     } catch (e) {
       // this is error code
       // ignore: avoid_print

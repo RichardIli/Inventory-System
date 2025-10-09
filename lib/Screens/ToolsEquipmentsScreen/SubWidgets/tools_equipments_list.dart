@@ -3,13 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/AddToolsEquipmentsButtonBloc/add_tools_equipments_button_bloc.dart';
+import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/PullOutToolsEquipmentsFromDbBloc/pull_out_tools_equipments_from_db_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentBloc/tools_equipment_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
 
 class ItemsList extends StatelessWidget {
-  const ItemsList({
-    super.key,
-  });
+  const ItemsList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,22 +39,44 @@ class ItemsList extends StatelessWidget {
               listener: (context, state) {
                 if (state is SearchBarInitial) {
                   context.read<ToolsEquipmentBloc>().add(
-                      FetchToolsEquipmentsData(search: state.searchedItem));
+                    FetchToolsEquipmentsData(search: state.searchedItem),
+                  );
                 }
               },
             ),
-            BlocListener<AddToolsEquipmentsButtonBloc,
-                AddToolsEquipmentsButtonState>(
+            BlocListener<
+              AddToolsEquipmentsButtonBloc,
+              AddToolsEquipmentsButtonState
+            >(
               listener: (context, state) {
                 if (state is AddToolsEquipmentsButtonLoaded) {
                   if (state.success) {
-                    context
-                        .read<ToolsEquipmentBloc>()
-                        .add(FetchToolsEquipmentsData(search: ""));
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Insertion failed')),
+                    context.read<ToolsEquipmentBloc>().add(
+                      FetchToolsEquipmentsData(search: ""),
                     );
+                  } else {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Insertion failed')));
+                  }
+                }
+              },
+            ),
+            BlocListener<
+              PullOutToolsEquipmentsFromDbBloc,
+              PullOutToolsEquipmentsFromDbState
+            >(
+              listener: (context, state) {
+                if (state is PulledOutToolsEquipmentsFromDb) {
+                  if (state.success) {
+                    context.read<ToolsEquipmentBloc>().add(
+                      FetchToolsEquipmentsData(search: ""),
+                    );
+                    print('should update the item status');
+                  } else {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Pull out failed')));
                   }
                 }
               },
@@ -64,9 +85,9 @@ class ItemsList extends StatelessWidget {
           child: BlocBuilder<ToolsEquipmentBloc, ToolsEquipmentsState>(
             builder: (context, state) {
               if (state is ToolsEquipmentsInitial) {
-                context
-                    .read<ToolsEquipmentBloc>()
-                    .add(FetchToolsEquipmentsData(search: ""));
+                context.read<ToolsEquipmentBloc>().add(
+                  FetchToolsEquipmentsData(search: ""),
+                );
                 return Center(child: CircularProgressIndicator());
               } else if (state is ToolsEquipmentsLoading) {
                 return Center(child: CircularProgressIndicator());
@@ -77,9 +98,10 @@ class ItemsList extends StatelessWidget {
                     itemCount: state.data.length,
                     itemBuilder: (context, index) {
                       final item = state.data[index];
-                      final String itemId = item["id"] != null
-                          ? item["id"].toString()
-                          : "User ID not Found";
+                      final String itemId =
+                          item["id"] != null
+                              ? item["id"].toString()
+                              : "User ID not Found";
                       final String itemName = item["name"];
                       final String itemStatus = item["status"];
                       return GestureDetector(
@@ -87,9 +109,11 @@ class ItemsList extends StatelessWidget {
                           final data = {
                             "itemId": itemId,
                             "itemName": itemName,
-                            "itemStatus": itemStatus
+                            "itemStatus": itemStatus,
                           };
-                          context.read<SelectedItemCubit>().setSelectedItem(passedData: data);
+                          context.read<SelectedItemCubit>().setSelectedItem(
+                            passedData: data,
+                          );
 
                           Navigator.pushNamed(context, itemDetailsScreen);
                         },
@@ -119,9 +143,7 @@ class ItemsList extends StatelessWidget {
               } else if (state is ToolsEquipmentsError) {
                 return Text('Error: ${state.error}');
               } else {
-                return Center(
-                  child: Text("No Data"),
-                );
+                return Center(child: Text("No Data"));
               }
             },
           ),
@@ -132,10 +154,7 @@ class ItemsList extends StatelessWidget {
 }
 
 class Titles extends StatelessWidget {
-  const Titles({
-    super.key,
-    required this.displayText,
-  });
+  const Titles({super.key, required this.displayText});
 
   final String displayText;
 
@@ -145,20 +164,16 @@ class Titles extends StatelessWidget {
       child: Text(
         textAlign: TextAlign.center,
         displayText,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge!
-            .copyWith(fontWeight: FontWeight.bold),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
 class RowContent extends StatelessWidget {
-  const RowContent({
-    super.key,
-    required this.displayText,
-  });
+  const RowContent({super.key, required this.displayText});
 
   final String displayText;
 

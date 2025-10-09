@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_tools_equipment_db.dart';
+import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
 import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/SharedComponents/custom_appbar.dart';
@@ -35,6 +36,10 @@ class ReleaseToolsEquipmentsScreen extends StatelessWidget {
                 userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
                   context,
                 ),
+                transmitalHistoryDb:
+                    RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+                      context,
+                    ),
               ),
         ),
       ],
