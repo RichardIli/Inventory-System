@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:inventory_system/FirebaseConnection/firestore_tools_equipment_db.dart';
+import 'package:intl/intl.dart';
+import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SaveQRCodeButtonBloc/save_qr_code_button_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentsHistoryBloc/tools_equipments_history_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/QRGeneratorBloc/qr_generator_bloc.dart';
@@ -29,15 +30,19 @@ class _ToolsEquipmentsDetailsAreaState
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ToolsEquipmentsHistoryBloc(
-          RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context)),
+      create:
+          (context) => ToolsEquipmentsHistoryBloc(
+            // RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context)
+            transmitalHistoryDb:
+                RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(context),
+          ),
       child: BlocListener<SaveQrCodeButtonBloc, SaveQrCodeButtonState>(
         listener: (context, state) {
           if (state is SavedQrCodeButton) {
             if (state.success) {
-              context
-                  .read<SaveQrCodeButtonBloc>()
-                  .add(ResetSaveQrCodeButtonEvent());
+              context.read<SaveQrCodeButtonBloc>().add(
+                ResetSaveQrCodeButtonEvent(),
+              );
             }
           }
         },
@@ -55,7 +60,9 @@ class _ToolsEquipmentsDetailsAreaState
                       DetailsField(fieldLabel: "ID", itemId: widget.itemId),
                       DetailsField(fieldLabel: "NAME", itemId: widget.itemName),
                       DetailsField(
-                          fieldLabel: "STATUS", itemId: widget.itemStatus),
+                        fieldLabel: "STATUS",
+                        itemId: widget.itemStatus,
+                      ),
                     ],
                   ),
                   Column(
@@ -68,9 +75,11 @@ class _ToolsEquipmentsDetailsAreaState
                             builder: (context, state) {
                               if (state is QrGeneratorInitial) {
                                 context.read<QrGeneratorBloc>().add(
-                                    GenerateQREvent(
-                                        itemID: widget.itemId,
-                                        itemName: widget.itemName));
+                                  GenerateQREvent(
+                                    itemID: widget.itemId,
+                                    itemName: widget.itemName,
+                                  ),
+                                );
                                 return Center(
                                   child: CircularProgressIndicator(),
                                 );
@@ -84,30 +93,29 @@ class _ToolsEquipmentsDetailsAreaState
                                     children: [
                                       Expanded(child: state.customQR),
                                       Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 5),
+                                        padding: const EdgeInsets.only(
+                                          bottom: 5,
+                                        ),
                                         child: Text(
                                           "id: ${widget.itemId},\nname: ${widget.itemName}",
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge!
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodyLarge!.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 );
                               } else if (state is QrGeneratorStateError) {
-                                return Center(
-                                  child: Text(state.error),
-                                );
+                                return Center(child: Text(state.error));
                               } else {
                                 return Center(
                                   child: Text(
-                                      "Something went Wrong, Consult your IT"),
+                                    "Something went Wrong, Consult your IT",
+                                  ),
                                 );
                               }
                             },
@@ -123,9 +131,7 @@ class _ToolsEquipmentsDetailsAreaState
                                   "id:${widget.itemId},name:${widget.itemName}",
                             );
                           } else if (state is SavingQrCodeButton) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
+                            return Center(child: CircularProgressIndicator());
                           } else if (state is SavedQrCodeButton) {
                             return CustomSaveQRCodeButton(
                               repaintBoundaryKey: repaintBoundaryKey,
@@ -137,18 +143,20 @@ class _ToolsEquipmentsDetailsAreaState
                             print(state.error);
                             return Center(
                               child: Text(
-                                  "Something wen't wrong. Consult your IT"),
+                                "Something wen't wrong. Consult your IT",
+                              ),
                             );
                           } else {
                             return Center(
                               child: Text(
-                                  "Something wen't wrong. Consult your IT"),
+                                "Something wen't wrong. Consult your IT",
+                              ),
                             );
                           }
                         },
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
               Column(
@@ -158,49 +166,69 @@ class _ToolsEquipmentsDetailsAreaState
                   Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black,
-                      ),
+                      border: Border.all(color: Colors.black),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
                       children: [
                         Row(
                           children: [
-                            ListLabel(displayLabel: "Record No"),
                             ListLabel(displayLabel: "Processed By"),
                             ListLabel(displayLabel: "Out By"),
                             ListLabel(displayLabel: "Request By"),
                             ListLabel(displayLabel: "Received On Site By"),
+                            ListLabel(displayLabel: "In By"),
                             ListLabel(displayLabel: "In Date"),
+                            ListLabel(displayLabel: "Out Date"),
                           ],
                         ),
-                        BlocBuilder<ToolsEquipmentsHistoryBloc,
-                            ToolsEquipmentsHistoryState>(
+                        BlocBuilder<
+                          ToolsEquipmentsHistoryBloc,
+                          ToolsEquipmentsHistoryState
+                        >(
                           builder: (context, state) {
                             if (state is ToolsEquipmentsHistoryInitial) {
                               context.read<ToolsEquipmentsHistoryBloc>().add(
-                                  FetchToolsEquipmentsHistoryEvent(
-                                      itemId: widget.itemId));
+                                FetchToolsEquipmentsHistoryEvent(
+                                  itemId: widget.itemId,
+                                ),
+                              );
                               return Center(child: CircularProgressIndicator());
                             } else if (state is ToolsEquipmentsHistoryLoading) {
                               return Center(child: CircularProgressIndicator());
                             } else if (state is ToolsEquipmentsHistoryLoaded) {
+                              String formatDate(String? isoString) {
+                                if (isoString == null || isoString.isEmpty) {
+                                  return ""; // Return a default value if the date is null or empty.
+                                }
+                                // 1. Parse the ISO 8601 string into a DateTime object.
+                                // The 'Z' at the end indicates UTC time, so use parseUtc().
+                                final DateTime dateTime =
+                                    DateTime.parse(isoString).toLocal();
+
+                                // 2. Define the desired format: dd-mm-yy (e.g., 10-03-24).
+                                // Use 'dd-MM-yy' where 'MM' is for the month number (padded).
+                                final DateFormat formatter = DateFormat(
+                                  'dd-MM-yy',
+                                );
+
+                                // 3. Apply the format and return the string.
+                                return formatter.format(dateTime);
+                              }
+
                               return ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: state.data.length,
                                 itemBuilder: (context, index) {
                                   final item = state.data[index];
-                                  final String outBy = item["outBy"] != null
-                                      ? item["outBy"].toString()
-                                      : "";
                                   final String processedBy =
                                       item["processedBy"] != null
                                           ? item["processedBy"].toString()
                                           : "";
-                                  final String inBy = item["inBy"] != null
-                                      ? item["inBy"].toString()
-                                      : "";
+                                  final String outBy =
+                                      item["outBy"] != null
+                                          ? item["outBy"].toString()
+                                          : "";
                                   final String requestBy =
                                       item["requestBy"] != null
                                           ? item["requestBy"].toString()
@@ -209,17 +237,29 @@ class _ToolsEquipmentsDetailsAreaState
                                       item["receivedOnSiteBy"] != null
                                           ? item["receivedOnSiteBy"].toString()
                                           : "";
-
+                                  final String inBy =
+                                      item["inBy"] != null
+                                          ? item["inBy"].toString()
+                                          : "";
+                                  final String inDate =
+                                      item["inDate"] != null
+                                          ? item["inDate"].toString()
+                                          : "";
+                                  final String outDate =
+                                      item["releaseDate"] != null
+                                          ? item["releaseDate"].toString()
+                                          : "";
                                   return Row(
                                     children: [
-                                      ListContent(
-                                          displayText: index.toString()),
                                       ListContent(displayText: processedBy),
                                       ListContent(displayText: outBy),
                                       ListContent(displayText: requestBy),
                                       ListContent(
-                                          displayText: receivedOnSiteBy),
+                                        displayText: receivedOnSiteBy,
+                                      ),
                                       ListContent(displayText: inBy),
+                                      ListContent(displayText: formatDate(inDate)),
+                                      ListContent(displayText: formatDate(outDate)),
                                     ],
                                   );
                                 },
@@ -227,9 +267,7 @@ class _ToolsEquipmentsDetailsAreaState
                             } else if (state is ToolsEquipmentsHistoryError) {
                               return Text('Error: ${state.error}');
                             } else {
-                              return Center(
-                                child: Text("No Data"),
-                              );
+                              return Center(child: Text("No Data"));
                             }
                           },
                         ),
@@ -237,7 +275,7 @@ class _ToolsEquipmentsDetailsAreaState
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -260,8 +298,12 @@ class CustomSaveQRCodeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        context.read<SaveQrCodeButtonBloc>().add(PressedSaveQrCodeButtonEvent(
-            repaintBoundaryKey: repaintBoundaryKey, qrCodeName: qrCodeName));
+        context.read<SaveQrCodeButtonBloc>().add(
+          PressedSaveQrCodeButtonEvent(
+            repaintBoundaryKey: repaintBoundaryKey,
+            qrCodeName: qrCodeName,
+          ),
+        );
       },
       child: Text("Save QR Code"),
     );
@@ -282,16 +324,11 @@ class DetailsField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SizedBox(
-          width: 80,
-          child: Text("$fieldLabel: "),
-        ),
+        SizedBox(width: 80, child: Text("$fieldLabel: ")),
         Container(
           width: 150,
           decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Colors.black, width: 1),
-            ),
+            border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
           ),
           child: Center(child: Text(itemId)),
         ),
@@ -301,35 +338,23 @@ class DetailsField extends StatelessWidget {
 }
 
 class ListLabel extends StatelessWidget {
-  const ListLabel({
-    super.key,
-    required this.displayLabel,
-  });
+  const ListLabel({super.key, required this.displayLabel});
 
   final String displayLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Center(
-        child: Text(displayLabel),
-      ),
-    );
+    return Expanded(child: Center(child: Text(displayLabel)));
   }
 }
 
 class ListContent extends StatelessWidget {
-  const ListContent({
-    super.key,
-    required this.displayText,
-  });
+  const ListContent({super.key, required this.displayText});
 
   final String displayText;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Center(child: Text(displayText)),
-    );
+    return Expanded(child: Center(child: Text(displayText)));
   }
 }

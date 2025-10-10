@@ -72,7 +72,6 @@ class ItemsList extends StatelessWidget {
                     context.read<ToolsEquipmentBloc>().add(
                       FetchToolsEquipmentsData(search: ""),
                     );
-                    print('should update the item status');
                   } else {
                     ScaffoldMessenger.of(
                       context,

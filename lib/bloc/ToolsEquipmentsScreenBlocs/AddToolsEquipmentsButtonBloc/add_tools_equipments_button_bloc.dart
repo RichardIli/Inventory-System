@@ -39,7 +39,7 @@ class AddToolsEquipmentsButtonBloc
           'id': itemId,
           "name": event.itemName,
           "processedBy": processedBy,
-          "inDate": DateTime.now(),
+          "inDate": DateTime.now().toUtc().toIso8601String(),
         };
 
         transmitalHistoryDb.recordNewItemHistory(datas);

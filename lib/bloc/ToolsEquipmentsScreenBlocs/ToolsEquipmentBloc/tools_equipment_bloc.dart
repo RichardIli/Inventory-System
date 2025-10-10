@@ -17,7 +17,6 @@ class ToolsEquipmentBloc
             final data = toolsEquipmentsDb.filterToolsEquipmentsByID(
               event.search,
             );
-            print(data);
             emit(ToolsEquipmentsLoaded(data));
           } else {
             final data = toolsEquipmentsDb.filterToolsEquipmentsByName(

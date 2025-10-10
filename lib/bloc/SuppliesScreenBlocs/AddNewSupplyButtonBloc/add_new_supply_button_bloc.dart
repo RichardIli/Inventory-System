@@ -26,7 +26,6 @@ class AddNewSupplyButtonBloc
           event.unit,
           event.supplyAmount,
         );
-        print("isSuccess: $success");
         emit(AddNewSupplyButtonLoaded(success));
       } catch (e) {
         emit(AddNewSupplyButtonError(e.toString()));

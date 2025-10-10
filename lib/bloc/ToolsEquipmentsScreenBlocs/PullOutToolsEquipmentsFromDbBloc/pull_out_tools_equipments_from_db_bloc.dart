@@ -39,15 +39,20 @@ class PullOutToolsEquipmentsFromDbBloc
 
         for (Map<String, dynamic> item in currentList) {
           try {
-            final Map<String, dynamic> forHistoryDatas = {
-              "processedBy": user[0]["name"],
-              "releaseDate": DateTime.now(),
-              "outBy": outBy,
-              "requestBy": requestBy,
-              "receivedOnSiteBy": receivedOnSiteBy,
-            };
-            toolsEquipmentsRepo.outItem(item["id"], forHistoryDatas);
+            // final Map<String, dynamic> forHistoryDatas = {
+            //   "processedBy": user[0]["name"],
+            //   "releaseDate": DateTime.now(),
+            //   "outBy": outBy,
+            //   "requestBy": requestBy,
+            //   "receivedOnSiteBy": receivedOnSiteBy,
+            // };
 
+            toolsEquipmentsRepo.outItem(
+              item["id"],
+              // forHistoryDatas
+            );
+
+            // TODO: MAKE THE SAME LIST FOR THE RETURN ITEM BLOC OR FEATURE
             final Map<String, dynamic> transmitalsDatas = {
               'id': item["id"],
               "name": item["name"].toString(),

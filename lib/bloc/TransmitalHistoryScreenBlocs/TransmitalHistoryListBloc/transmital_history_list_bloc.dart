@@ -9,12 +9,17 @@ class TransmitalHistoryListBloc
     extends Bloc<TransmitalHistoryListEvent, TransmitalHistoryListState> {
   final FirestoreTransmitalHistoryRepo transmitalHistoryRepo;
   TransmitalHistoryListBloc({required this.transmitalHistoryRepo})
-      : super(TransmitalHistoryListInitial()) {
-    on<FetchTransmitalHistoryListEvent>((event, emit)  {
+    : super(TransmitalHistoryListInitial()) {
+    on<FetchTransmitalHistoryListEvent>((event, emit) {
       emit(TransmitalHistoryListLoading());
       try {
-        final transmitals =
-             transmitalHistoryRepo.fetchTransmitalHistory();
+        // TODO: FIND THE REASON WHY EVERYTIME I ADD A NEW ITEM THE ASCENDING ORDER WONT WORK
+        final transmitals = transmitalHistoryRepo.fetchTransmitalHistory();
+
+        transmitals.sort((a, b) {
+          return double.parse(b['docId']).compareTo(double.parse(a['docId']));
+        });
+        
         emit(TransmitalHistoryListLoaded(history: transmitals));
       } catch (e) {
         emit(TransmitalHistoryListStateError(error: e.toString()));
