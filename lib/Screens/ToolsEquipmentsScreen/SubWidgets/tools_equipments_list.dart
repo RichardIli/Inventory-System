@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/AddToolsEquipmentsButtonBloc/add_tools_equipments_button_bloc.dart';
-import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/PullOutToolsEquipmentsFromDbBloc/pull_out_tools_equipments_from_db_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentBloc/tools_equipment_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
 
@@ -58,24 +57,6 @@ class ItemsList extends StatelessWidget {
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(SnackBar(content: Text('Insertion failed')));
-                  }
-                }
-              },
-            ),
-            BlocListener<
-              PullOutToolsEquipmentsFromDbBloc,
-              PullOutToolsEquipmentsFromDbState
-            >(
-              listener: (context, state) {
-                if (state is PulledOutToolsEquipmentsFromDb) {
-                  if (state.success) {
-                    context.read<ToolsEquipmentBloc>().add(
-                      FetchToolsEquipmentsData(search: ""),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('Pull out failed')));
                   }
                 }
               },

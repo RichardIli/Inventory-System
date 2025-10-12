@@ -45,9 +45,23 @@ class TransmitalHistoryScreen extends StatelessWidget {
   }
 }
 
-// TODO: INSTEAD OF ROWS AND COLUMN, USE THE TABLE FOR MUCH MORE CONTROLL OF CELLS
-class TransmitalsList extends StatelessWidget {
+class TransmitalsList extends StatefulWidget {
   const TransmitalsList({super.key});
+
+  @override
+  State<TransmitalsList> createState() => _TransmitalsListState();
+}
+
+class _TransmitalsListState extends State<TransmitalsList> {
+  // TODO: NOW TEST IF THE LIST WILL UPDATE AFTER ADDING A NEW ITEM.
+  // INITIALIZE THE LIST
+  @override
+  void initState() {
+    context.read<TransmitalHistoryListBloc>().add(
+      FetchTransmitalHistoryListEvent(),
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +102,6 @@ class TransmitalsList extends StatelessWidget {
             >(
               builder: (context, state) {
                 if (state is TransmitalHistoryListInitial) {
-                  context.read<TransmitalHistoryListBloc>().add(
-                    FetchTransmitalHistoryListEvent(),
-                  );
                   return Center(child: CircularProgressIndicator());
                 } else if (state is TransmitalHistoryListLoading) {
                   return Center(child: CircularProgressIndicator());

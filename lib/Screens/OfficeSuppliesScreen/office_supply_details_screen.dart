@@ -65,37 +65,6 @@ class OfficeSupplyDetailsScreen extends StatelessWidget {
                         return Container();
                       },
                     ),
-                    // BlocBuilder<SelectedItemBloc, SelectedItemState>(
-                    //   builder: (context, state) {
-                    //     if (state is SelectedItemInitial) {
-                    //       return CircularProgressIndicator();
-                    //     } else if (state is SelectedItemLoading) {
-                    //       return CircularProgressIndicator();
-                    //     } else if (state is SelectedItemLoaded) {
-                    //       final passedData = state.passedData;
-                    //       return Expanded(
-                    //         child: SingleChildScrollView(
-                    //           child: OfficeSupplyDetailsArea(
-                    //             supplyId: passedData["supplyId"],
-                    //             supplyName: passedData["supplyName"],
-                    //             supplyUnit: passedData["supplyUnit"],
-                    //           ),
-                    //         ),
-                    //       );
-                    //     } else if (state is SelectedItemError) {
-                    //       return Column(
-                    //         children: [
-                    //           Icon(Icons.error_outline_rounded),
-                    //           Text(
-                    //             state.error,
-                    //             style: Theme.of(context).textTheme.bodyMedium,
-                    //           )
-                    //         ],
-                    //       );
-                    //     }
-                    //     return Container();
-                    //   },
-                    // ),
                     CustomFooter(),
                   ],
                 ),

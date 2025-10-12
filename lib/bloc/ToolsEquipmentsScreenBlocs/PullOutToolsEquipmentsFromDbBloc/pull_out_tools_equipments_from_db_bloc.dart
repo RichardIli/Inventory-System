@@ -39,25 +39,17 @@ class PullOutToolsEquipmentsFromDbBloc
 
         for (Map<String, dynamic> item in currentList) {
           try {
-            // final Map<String, dynamic> forHistoryDatas = {
-            //   "processedBy": user[0]["name"],
-            //   "releaseDate": DateTime.now(),
-            //   "outBy": outBy,
-            //   "requestBy": requestBy,
-            //   "receivedOnSiteBy": receivedOnSiteBy,
-            // };
 
-            toolsEquipmentsRepo.outItem(
-              item["id"],
-              // forHistoryDatas
+            toolsEquipmentsRepo.updateItemStatus(
+              id: item["id"].toString(),
+              status: "OUTSIDE",
             );
 
-            // TODO: MAKE THE SAME LIST FOR THE RETURN ITEM BLOC OR FEATURE
             final Map<String, dynamic> transmitalsDatas = {
               'id': item["id"],
               "name": item["name"].toString(),
               "processedBy": user[0]["name"],
-              "releaseDate": DateTime.now(),
+              "releaseDate": DateTime.now().toUtc().toIso8601String(),
               "outBy": outBy,
               "requestBy": requestBy,
               "receivedOnSiteBy": receivedOnSiteBy,
@@ -69,6 +61,7 @@ class PullOutToolsEquipmentsFromDbBloc
             print("Error for item ID ${item["id"]}: $e");
           }
         }
+
         emit(PulledOutToolsEquipmentsFromDb(success: true));
       } catch (e) {
         emit(PullOutToolsEquipmentsFromDbStateError(error: e.toString()));

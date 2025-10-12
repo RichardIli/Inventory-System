@@ -11,24 +11,24 @@ class FirestoreSuppliesDb {
     return suppliesList;
   }
 
-  void _newHistory(String id, String name, Map<String, dynamic> data) {
-    // Find the item in the list by its ID
-    final itemIndex = suppliesList.indexWhere((item) => item['id'] == id);
-    final history =
-        suppliesList[itemIndex]["history"] as List<Map<String, dynamic>>;
+  // void _newHistory(String id, String name, Map<String, dynamic> data) {
+  //   // Find the item in the list by its ID
+  //   final itemIndex = suppliesList.indexWhere((item) => item['id'] == id);
+  //   final history =
+  //       suppliesList[itemIndex]["history"] as List<Map<String, dynamic>>;
 
-    data["id"] = history.length;
+  //   data["id"] = history.length;
 
-    suppliesList[itemIndex]["history"].add(data);
+  //   suppliesList[itemIndex]["history"].add(data);
 
-    _transmitalHistoryRepo.recordHistory( data);
-  }
+  //   _transmitalHistoryRepo.recordHistory(data);
+  // }
 
   Map<String, dynamic> filterSupplyByExactName(String name) {
     try {
       final datas =
           suppliesList
-              .where((element) => element["name"] == name)
+              .where((element) => element["name"].toString().toUpperCase() == name)
               .toList()
               .first;
       return datas;
@@ -41,7 +41,7 @@ class FirestoreSuppliesDb {
     }
   }
 
-  List<Map<String, dynamic>> filterSuppliesByName(String name)  {
+  List<Map<String, dynamic>> filterSuppliesByName(String name) {
     try {
       final List<Map<String, dynamic>> suppliesDataLocal = suppliesData();
 
@@ -50,7 +50,9 @@ class FirestoreSuppliesDb {
       List<Map<String, dynamic>> filteredToolsEquipmentData =
           suppliesDataLocal
               .where(
-                (tool) => (tool["name"] as String).toUpperCase().contains(searchUperCase),
+                (tool) => (tool["name"] as String).toUpperCase().contains(
+                  searchUperCase,
+                ),
               )
               .toList();
 
@@ -85,7 +87,11 @@ class FirestoreSuppliesDb {
 
       List<Map<String, dynamic>> filteredToolsEquipmentData =
           suppliesDataLocal
-              .where((tool) => (tool["id"] as String).toUpperCase().contains(searchUperCase))
+              .where(
+                (tool) => (tool["id"] as String).toUpperCase().contains(
+                  searchUperCase,
+                ),
+              )
               .toList();
 
       return filteredToolsEquipmentData;
@@ -98,31 +104,11 @@ class FirestoreSuppliesDb {
   }
 
   // Create new Supply
-  bool addNewSupply(
-    String supplyName,
-    String processedBy,
-    String unit,
-    double amount,
-  )  {
+  bool addNewSupply(Map<String, dynamic> supplyDatas) {
     try {
-      String uniqueID = suppliesList.length.toString();
-
-      Map<String, dynamic> supplyDatas = {
-        "id": uniqueID,
-        "name": supplyName.toUpperCase(),
-        "amount": amount,
-        "unit": unit.toUpperCase(),
-      };
-
-      Map<String, dynamic> historyData = {
-        'processedBy': processedBy,
-        "inDate": DateTime.now(),
-        "inAmount": amount,
-      };
-
       suppliesList.add(supplyDatas);
 
-      _newHistory(uniqueID, supplyName.toUpperCase(), historyData);
+      // _newHistory(uniqueID, supplyName.toUpperCase(), historyData);
 
       return true;
     } catch (e) {
@@ -130,60 +116,32 @@ class FirestoreSuppliesDb {
     }
   }
 
-  bool pickupSupply(
-    String id,
-    String processedBy,
-    double pickupAmount,
-    String requestBy,
-    String outBy,
-    String receivedOnSiteBy,
-  )  {
-    Map<String, dynamic> filteredSupply = filterSupplyByExactId(id);
-
-    double storedAmount = filteredSupply["amount"];
-    Map<String, dynamic> historyData = {
-      "outBy": outBy,
-      'processedBy': processedBy,
-      "receivedOnSiteBy": receivedOnSiteBy,
-      "releaseDate": DateTime.now(),
-      "requestBy": requestBy,
-      "requestAmount": pickupAmount,
-    };
-
-    double newAmount = storedAmount - pickupAmount;
-
-    final itemIndex = suppliesList.indexWhere((item) => item['id'] == id);
-
-    suppliesList[itemIndex]["amount"] = newAmount;
-
-    _newHistory(id, filteredSupply['name'], historyData);
-
-    return true;
-  }
-
-  bool restockSupply(
-    String processedBy,
-    String id,
-    double inAmount,
-  )  {
+  bool pickupSupply(String id, double storedAmount, double pickupAmount) {
     try {
-      Map<String, dynamic> filteredSupply = filterSupplyByExactId(id);
-
-      double storedAmount = filteredSupply["amount"];
-
-      double newAmount = storedAmount + inAmount;
-
-      Map<String, dynamic> historyData = {
-        'processedBy': processedBy.toUpperCase(),
-        "inAmount": inAmount,
-        "inDate": DateTime.now(),
-      };
+      double newAmount = storedAmount - pickupAmount;
 
       final itemIndex = suppliesList.indexWhere((item) => item['id'] == id);
 
       suppliesList[itemIndex]["amount"] = newAmount;
 
-      _newHistory(id, filteredSupply['name'], historyData);
+      return true;
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('Error in pickupSupply: $e');
+      }
+      return false;
+    }
+  }
+
+  bool restockSupply(String id, double storedAmount, double inAmount) {
+    try {
+      // make a new amount after adding the restock amount to the current amount in the storage
+      final double newAmount = storedAmount + inAmount;
+
+      final int itemIndex = suppliesList.indexWhere((item) => item['id'] == id);
+
+      // assign a new value or update the value
+      suppliesList[itemIndex]["amount"] = newAmount;
 
       return true;
     } catch (e) {
@@ -193,7 +151,7 @@ class FirestoreSuppliesDb {
     }
   }
 
-  List<Map<String, dynamic>> supplyHistory(String id)  {
+  List<Map<String, dynamic>> supplyHistory(String id) {
     List<Map<String, dynamic>> history = [];
     try {
       // Find the item in the list by its ID

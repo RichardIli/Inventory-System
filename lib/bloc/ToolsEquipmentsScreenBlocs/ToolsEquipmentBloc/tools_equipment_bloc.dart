@@ -26,6 +26,7 @@ class ToolsEquipmentBloc
           }
         } else {
           final data = toolsEquipmentsDb.toolsEquipmentsData();
+
           emit(ToolsEquipmentsLoaded(data));
         }
       } catch (e) {

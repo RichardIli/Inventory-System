@@ -32,9 +32,7 @@ class RestockWindow extends StatelessWidget {
       child: Form(
         key: frmKey,
         child: AlertDialog(
-          title: Text(
-            "Restock $supplyName",
-          ),
+          title: Text("Restock $supplyName"),
           content: Row(
             spacing: 10,
             children: [
@@ -45,9 +43,7 @@ class RestockWindow extends StatelessWidget {
                   controller: supplyAmountController,
                   decoration: customInputDecoration.copyWith(
                     errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.redAccent,
-                      ),
+                      borderSide: BorderSide(color: Colors.redAccent),
                     ),
                   ),
                   validator: (value) {
@@ -69,19 +65,26 @@ class RestockWindow extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: BlocBuilder<RestockSupplyButtonBloc,
-                      RestockSupplyButtonState>(
+                  child: BlocBuilder<
+                    RestockSupplyButtonBloc,
+                    RestockSupplyButtonState
+                  >(
                     builder: (context, state) {
                       if (state is RestockSupplyButtonInitial) {
                         return AddButton(
                           frmKey: frmKey,
                           onPressed: () {
                             if (frmKey.currentState!.validate()) {
-                              final double inAmount =
-                                  double.parse(supplyAmountController.text);
+                              final double inAmount = double.parse(
+                                supplyAmountController.text,
+                              );
                               context.read<RestockSupplyButtonBloc>().add(
-                                  PressedRestockSupplyButtonEvent(
-                                      inAmount: inAmount, supplyID: supplyId));
+                                PressedRestockSupplyButtonEvent(
+                                  inAmount: inAmount,
+                                  supplyID: supplyId,
+                                  supplyName: supplyName,
+                                ),
+                              );
                             } else {}
                           },
                         );
@@ -89,24 +92,27 @@ class RestockWindow extends StatelessWidget {
                         return Center(child: CircularProgressIndicator());
                       } else if (state is RestockSupplyButtonLoaded) {
                         return IconButton(
-                            onPressed: () {
-                              context
-                                  .read<RestockSupplyButtonBloc>()
-                                  .add(ResetRestockSupplyButtonEvent());
-                              Navigator.pop(context);
-                            },
-                            icon: Icon(Icons.check_rounded));
+                          onPressed: () {
+                            context.read<RestockSupplyButtonBloc>().add(
+                              ResetRestockSupplyButtonEvent(),
+                            );
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.check_rounded),
+                        );
                       } else if (state is RestockSupplyButtonStateError) {
                         return Center(
                           child: TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text("Close and Try Again")),
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("Close and Try Again"),
+                          ),
                         );
                       } else {
                         return Center(
                           child: TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text("Close and Try Again")),
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("Close and Try Again"),
+                          ),
                         );
                       }
                     },
@@ -120,7 +126,7 @@ class RestockWindow extends StatelessWidget {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -129,20 +135,13 @@ class RestockWindow extends StatelessWidget {
 }
 
 class AddButton extends StatelessWidget {
-  const AddButton({
-    super.key,
-    required this.frmKey,
-    required this.onPressed,
-  });
+  const AddButton({super.key, required this.frmKey, required this.onPressed});
 
   final GlobalKey<FormState> frmKey;
   final void Function() onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: onPressed,
-      child: Text("Add"),
-    );
+    return TextButton(onPressed: onPressed, child: Text("Add"));
   }
 }

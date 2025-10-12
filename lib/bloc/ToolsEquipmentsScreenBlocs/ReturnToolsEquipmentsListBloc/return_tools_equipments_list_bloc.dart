@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_tools_equipment_db.dart';
+import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
-import 'package:flutter/widgets.dart';
 
 part 'return_tools_equipments_list_event.dart';
 part 'return_tools_equipments_list_state.dart';
@@ -13,16 +15,19 @@ class ReturnToolsEquipmentsListBloc
   final FirestoreToolsEquipmentDBRepository toolsEquipmentsDbRepo;
   final MyFirebaseAuth auth;
   final FirestoreUsersDbRepository userDbRepo;
+  final FirestoreTransmitalHistoryRepo transmitalHistoryDb;
 
   ReturnToolsEquipmentsListBloc({
     required this.toolsEquipmentsDbRepo,
     required this.auth,
     required this.userDbRepo,
+    required this.transmitalHistoryDb,
   }) : super(ReturnToolsEquipmentsListStateInitial(items: [])) {
     on<AddItemToReturnToolsEquipmentsListEvent>((event, emit) {
       final idorName = event.idorName;
       final willInBy = event.willInBy;
 
+// TODO: make a function or valication for duplicated item names
       try {
         if (state is ReturnToolsEquipmentsListStateInitial) {
           final currentSupplyList =
@@ -91,7 +96,7 @@ class ReturnToolsEquipmentsListBloc
   ) {
     return currentSupplyList.any(
       (item) =>
-          item["name"] == idorName ||
+          item["name"].toString().toUpperCase() == idorName ||
           (isID(idorName) && item["id"] == idorName),
     );
   }
@@ -102,13 +107,51 @@ class ReturnToolsEquipmentsListBloc
     List<Map<String, dynamic>> user,
     String willInBy,
   ) {
-    // TODO: I think the problem here is the id because im not sure if that exist in the list
-    final isValidForIn = toolsEquipmentsDbRepo.isValidForIn(
-      fetchedData["id"],
-      user[0]["name"],
-      willInBy.toUpperCase(),
-    );
-    return isValidForIn;
+    try {
+      final isValidForIn = _isValidForIn(
+        fetchedData["id"],
+        user[0]["name"],
+        willInBy.toUpperCase(),
+      );
+      return isValidForIn;
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('Error checking validity for in: $e');
+      }
+      return false;
+    }
+  }
+
+  bool _isValidForIn(String id, String processedBy, String willInBy) {
+    try {
+      bool isValidForIn;
+      // List<Map<String, dynamic>> history = itemHistory(id);
+      List<Map<String, dynamic>> history = transmitalHistoryDb.itemHistory(
+        itemId: id,
+      );
+
+      final datas = history.last;
+
+      if (history.length == 1) {
+        isValidForIn = false;
+        return isValidForIn;
+      } else {
+        String outBy = datas["outBy"].toString().toUpperCase();
+
+        if (willInBy == outBy) {
+          isValidForIn = true;
+          return isValidForIn;
+        } else {
+          isValidForIn = false;
+          return isValidForIn;
+        }
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('Error in _isValidForIn: $e');
+      }
+      return false;
+    }
   }
 
   bool isID(String idorName) {
@@ -123,7 +166,7 @@ class ReturnToolsEquipmentsListBloc
     String willInBy,
   ) {
     final status = fetchedData["status"];
-    final record = toolsEquipmentsDbRepo.itemHistory(fetchedData["id"]);
+    final record = transmitalHistoryDb.itemHistory(itemId: fetchedData["id"]);
     final lastRecord = record.last;
 
     final outby = lastRecord["outBy"];
@@ -135,13 +178,14 @@ class ReturnToolsEquipmentsListBloc
     final receivedOnSiteBy = lastRecord["receivedOnSiteBy"];
 
     final formattedLastRecord =
-        "In By: $inby \nIn Date: $indate \nOut By: $outby \nOut Date: $outdate \nRequest By: $requestBy \nSite Received On Site By: $receivedOnSiteBy";
+        "In By: $inby \nIn Date: ${_formatDate(indate)} \nOut By: $outby \nOut Date: ${_formatDate(outdate)} \nRequest By: $requestBy \nSite Received On Site By: $receivedOnSiteBy";
 
     // Checking if the item is valid for out
     if (status != "OUTSIDE") {
       emit(
         ReturnToolsEquipmentsListStateError(
-          error: "Item History Conflict.\nLast Record \n$formattedLastRecord",
+          error:
+              "Item History Conflict. Item is currently in Store Room so it cant be returned.\nLast Record \n$formattedLastRecord",
           items: currentSupplyList,
         ),
       );
@@ -182,5 +226,23 @@ class ReturnToolsEquipmentsListBloc
       ..add(fetchedData);
 
     emit(ReturnToolsEquipmentsListStateInitial(items: updatedSupplyList));
+  }
+
+  String _formatDate(String? isoString) {
+    // check if the provided date is not null
+    if (isoString == null) {
+      return "";
+    }
+
+    // 1. Parse the ISO 8601 string into a DateTime object.
+    // The 'Z' at the end indicates UTC time, so use parseUtc().
+    final DateTime dateTime = DateTime.parse(isoString).toLocal();
+
+    // 2. Define the desired format: dd-mm-yy (e.g., 10-03-24).
+    // Use 'dd-MM-yy' where 'MM' is for the month number (padded).
+    final DateFormat formatter = DateFormat('dd-MM-yy');
+
+    // 3. Apply the format and return the string.
+    return formatter.format(dateTime);
   }
 }

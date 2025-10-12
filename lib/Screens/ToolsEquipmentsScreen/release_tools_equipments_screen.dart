@@ -11,6 +11,7 @@ import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/PullOutToolsEquipmentsFromDbBloc/pull_out_tools_equipments_from_db_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/PullOutToolsEquipmentsListBloc/pull_out_tools_equipments_list_bloc.dart';
+import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentBloc/tools_equipment_bloc.dart';
 
 class ReleaseToolsEquipmentsScreen extends StatelessWidget {
   const ReleaseToolsEquipmentsScreen({super.key});
@@ -26,12 +27,16 @@ class ReleaseToolsEquipmentsScreen extends StatelessWidget {
                     RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
                       context,
                     ),
+                transmitalHistoryDb:
+                    RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+                      context,
+                    ),
               ),
         ),
         BlocProvider(
           create:
               (context) => PullOutToolsEquipmentsFromDbBloc(
-                toolsEquipmentsRepo: FirestoreToolsEquipmentDBRepository(),
+                toolsEquipmentsRepo: RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context),
                 auth: RepositoryProvider.of<MyFirebaseAuth>(context),
                 userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
                   context,
@@ -74,6 +79,9 @@ class Body extends StatelessWidget {
       listener: (context, state) {
         if (state is PulledOutToolsEquipmentsFromDb) {
           if (state.success) {
+            context.read<ToolsEquipmentBloc>().add(
+              FetchToolsEquipmentsData(search: ""),
+            );
             showDialog(
               barrierDismissible: false,
               context: context,
@@ -83,11 +91,7 @@ class Body extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          toolsEquipmentsScreen,
-                          (Route<dynamic> route) => false,
-                        );
+                        Navigator.pushNamed(context, toolsEquipmentsScreen);
                       },
                       child: Text("OK"),
                     ),
@@ -273,39 +277,31 @@ class Body extends StatelessWidget {
                                               ],
                                             ),
                                           ),
-                                          BlocBuilder<
-                                            PullOutToolsEquipmentsListBloc,
-                                            PullOutToolsEquipmentsListState
-                                          >(
-                                            builder: (context, state) {
-                                              {
-                                                if (state
-                                                    is PullOutToolsEquipmentsListStateInitial) {
-                                                  final currentToolsEquipmentsList =
-                                                      state
-                                                          .items; // Get items from initial state
+                                          Expanded(
+                                            child: BlocBuilder<
+                                              PullOutToolsEquipmentsListBloc,
+                                              PullOutToolsEquipmentsListState
+                                            >(
+                                              builder: (context, state) {
+                                                if (state is PullOutToolsEquipmentsListStateInitial) {
+                                                  final currentToolsEquipmentsList = state.items;
 
                                                   return ItemList(
-                                                    currentToolsEquipmentsList:
-                                                        currentToolsEquipmentsList,
+                                                    currentToolsEquipmentsList: currentToolsEquipmentsList,
                                                   );
-                                                } else if (state
-                                                    is PullOutToolsEquipmentsListStateError) {
-                                                  final currentToolsEquipmentsList =
-                                                      state
-                                                          .items; // Get items from initial state
+                                                } else if (state is PullOutToolsEquipmentsListStateError) {
+                                                  final currentToolsEquipmentsList = state.items;
 
                                                   return ItemList(
-                                                    currentToolsEquipmentsList:
-                                                        currentToolsEquipmentsList,
+                                                    currentToolsEquipmentsList: currentToolsEquipmentsList,
                                                   );
                                                 } else {
                                                   return Center(
                                                     child: Container(),
                                                   );
                                                 }
-                                              }
-                                            },
+                                              },
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -459,7 +455,8 @@ class ItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      shrinkWrap: true,
+      // This ListView is placed inside an Expanded, so do not use shrinkWrap.
+      physics: AlwaysScrollableScrollPhysics(),
       itemCount: currentToolsEquipmentsList.length,
       itemBuilder: (context, index) {
         final toolsEquipmentsName = currentToolsEquipmentsList[index]["name"];
@@ -468,6 +465,7 @@ class ItemList extends StatelessWidget {
           children: [
             ListRowContent(displayTxt: toolsEquipmentsId),
             ListRowContent(displayTxt: toolsEquipmentsName),
+            SizedBox(width: 8),
             SizedBox(
               width: 100,
               child: IconButton(

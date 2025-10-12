@@ -31,13 +31,15 @@ class ToolsEquipmentScreen extends StatelessWidget {
                   context,
                 ),
                 RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(context),
+                RepositoryProvider.of<MyFirebaseAuth>(context),
+                RepositoryProvider.of<FirestoreUsersDbRepository>(context),
               ),
         ),
         BlocProvider<SearchBarBloc>(create: (context) => SearchBarBloc()),
         BlocProvider(
           create:
               (context) => PullOutToolsEquipmentsFromDbBloc(
-                toolsEquipmentsRepo: FirestoreToolsEquipmentDBRepository(),
+                toolsEquipmentsRepo: RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context),
                 auth: RepositoryProvider.of<MyFirebaseAuth>(context),
                 userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
                   context,

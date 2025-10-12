@@ -1,10 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 
 class FirestoreToolsEquipmentDBRepository {
-  final FirestoreTransmitalHistoryRepo _firestoreTransmitalHistoryRepo =
-      FirestoreTransmitalHistoryRepo();
-
   // Read/Get all item
   List<Map<String, dynamic>> toolsEquipmentsData() {
     try {
@@ -89,7 +85,12 @@ class FirestoreToolsEquipmentDBRepository {
   Map<String, dynamic> filterToolsEquipmentsByExactId(String id) {
     try {
       final filteredDataById =
-          toolsEquipmentList.where((element) => element["id"] == id).toList();
+          toolsEquipmentList
+              .where(
+                (element) =>
+                    element["id"].toString().toUpperCase() == id.toUpperCase(),
+              )
+              .toList();
       return filteredDataById.first;
     } catch (e) {
       // Handle the error (e.g., log it or show a message)
@@ -151,163 +152,46 @@ class FirestoreToolsEquipmentDBRepository {
     }
   }
 
-  // void _newHistory(String id, Map<String, dynamic> data) {
-  //   try {
-  //     // Find the item in the list by its ID
-  //     final itemIndex = toolsEquipmentList.indexWhere(
-  //       (item) => item['id'] == id,
-  //     );
-
-  //     if (itemIndex != -1) {
-  //       // If the item is found, add the new history entry to its 'history' list
-  //       final history = toolsEquipmentList[itemIndex]['history'];
-  //       print(history);
-  //       print(history.runtimeType);
-  //       history == null
-  //           ? toolsEquipmentList[itemIndex]['history'] = [data]
-  //           : toolsEquipmentList[itemIndex]['history'].add(data);
-
-  //       if (kDebugMode) {
-  //         print('History added successfully for item ID: $id');
-  //       }
-  //     } else {
-  //       if (kDebugMode) {
-  //         print('Item with ID $id not found.');
-  //       }
-  //     }
-
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print('History error: $e');
-  //     }
-  //   }
-  // }
-
-  List<Map<String, dynamic>> itemHistory(String id) {
-    List<Map<String, dynamic>> history = [];
-    try {
-      // Find the item in the list by its ID
-      final item = toolsEquipmentList.firstWhere(
-        (item) => item['id'] == id,
-        orElse: () => {}, // Provide an empty map if not found to avoid error
-      );
-
-      // Check if the item was found and if it has a 'history' key
-      if (item.isNotEmpty &&
-          item.containsKey('history') &&
-          item['history'] is List) {
-        history = List<Map<String, dynamic>>.from(item['history']);
-      } else {
-        if (kDebugMode) {
-          print('Item with ID $id not found or has no history.');
-        }
-        return []; // Return an empty list if not found or no history
-      }
-
-      return history;
-    } catch (e) {
-      // this is an error code
-      // ignore: avoid_print
-      print(e);
-      return history;
-    }
-  }
-
-  void _updateItemStatus({required String id, required String status}) {
+  void updateItemStatus({required String id, required String status}) {
     try {
       // Find the item in the list by its ID
       final itemIndex = toolsEquipmentList.indexWhere(
         (item) => item['id'] == id,
       );
-      toolsEquipmentList[itemIndex]["status"] = status;
+
+      // Check if item was found before updating
+      if (itemIndex != -1) {
+        toolsEquipmentList[itemIndex]["status"] = status;
+      } else {
+        if (kDebugMode) {
+          print('Status error: Item with id $id not found');
+        }
+      }
     } catch (e) {
       if (kDebugMode) {
-        print('Sattus error:$e');
+        print('Status error: $e');
       }
     }
   }
 
-  bool addNewItem(String itemName, String processedBy) {
+  List addNewItem(
+    // String itemName,
+    // String processedBy
+    Map<String, dynamic> itemData,
+  ) {
     try {
       String uniqueID = toolsEquipmentList.length.toString();
 
-      Map<String, dynamic> itemData = {
-        "id": uniqueID,
-        "name": itemName,
-        "isArchive": false,
-        "status": "STORE ROOM",
-      };
+      itemData['id'] = uniqueID;
 
       toolsEquipmentList.add(itemData);
 
-      // Map<String, dynamic> historyData = {
-      //   "processedBy": processedBy,
-      //   "inDate": DateTime.now(),
-      // };
-
-      // final Map<String, dynamic> datas = {
-      //   "name": itemName,
-      //   "processedBy": processedBy,
-      //   "inDate": DateTime.now(),
-      // };
-
-      // _newHistory(uniqueID.toString(), historyData);
-
-      // _firestoreTransmitalHistoryRepo.recordNewItemHistory(uniqueID, datas);
-
-      return true;
+      return [true, itemData];
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
-      return false;
-    }
-  }
-
-  void outItem(
-    String id,
-    // Map<String, dynamic> forHistoryDatas
-  ) {
-    try {
-      _updateItemStatus(id: id.toString(), status: "OUTSIDE");
-
-      // _newHistory(id.toString(), forHistoryDatas);
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-    }
-  }
-
-  void returnItem(String id, String processedBy, String inBy) {
-    try {
-      // Find the item in the list by its ID
-      final itemIndex = toolsEquipmentList.indexWhere(
-        (item) => item['id'] == id,
-      );
-
-      int subCollID =
-          (toolsEquipmentList[itemIndex]['history']
-                  as List<Map<String, dynamic>>)
-              .length -
-          1;
-      // Update the existing history. Note that the first is out the it will update when you in an item
-      final datas = {
-        "id": subCollID,
-        "processedBy": processedBy,
-        "inBy": inBy,
-        "inDate": DateTime.now(),
-      };
-
-      toolsEquipmentList.add(datas);
-
-      _updateItemStatus(id: id.toString(), status: "STORE ROOM");
-
-      _firestoreTransmitalHistoryRepo.recordHistory(datas);
-    } catch (e) {
-      // this is error code
-      // ignore: avoid_print
-      print(e);
+      return [false];
     }
   }
 
@@ -327,28 +211,7 @@ class FirestoreToolsEquipmentDBRepository {
     }
   }
 
-  bool isValidForIn(String id, String processedBy, String willInBy) {
-    bool isValidForIn;
-    List<Map<String, dynamic>> history = itemHistory(id);
-    Map<String, dynamic> datas = history.last;
-
-    if (history.length == 1) {
-      isValidForIn = false;
-      return isValidForIn;
-    } else {
-      String outBy = datas["outBy"];
-
-      if (willInBy == outBy) {
-        isValidForIn = true;
-        return isValidForIn;
-      } else {
-        isValidForIn = false;
-        return isValidForIn;
-      }
-    }
-  }
-
-  final List<Map<String, dynamic>> toolsEquipmentList = [
+  List<Map<String, dynamic>> toolsEquipmentList = [
     {
       'amountReleased': 0,
       'id': '0',

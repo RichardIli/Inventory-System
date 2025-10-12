@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
+import 'package:inventory_system/FirebaseConnection/firestore_office_supplies.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_supplies.dart';
+import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
 import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/SharedComponents/custom_appbar.dart';
 import 'package:inventory_system/SharedComponents/custom_footer.dart';
 import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
-import 'package:inventory_system/bloc/SuppliesScreenBlocs/PullOutSuppliesFromDbBloc/pull_out_supplies_from_db_bloc.dart';
-import 'package:inventory_system/bloc/SuppliesScreenBlocs/PullOutSuppliesListBloc%20copy/pull_out_supplies_list_bloc.dart';
+import 'package:inventory_system/bloc/OfficeSuppliesScreenBlocs/PullOutOfficeSuppliesFromDbBloc/pull_out_office_supplies_from_db_bloc.dart';
+import 'package:inventory_system/bloc/OfficeSuppliesScreenBlocs/PullOutOfficeSuppliesListBloc%20copy/pull_out_office_supplies_list_bloc.dart';
 
 class PullOutOfficeSuppliesScreen extends StatelessWidget {
   const PullOutOfficeSuppliesScreen({super.key});
@@ -20,17 +22,30 @@ class PullOutOfficeSuppliesScreen extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => PullOutSuppliesListBloc(
-              suppliesDbRepository:
-                  RepositoryProvider.of<FirestoreSuppliesDb>(context)),
+          create:
+              (context) => PullOutOfficeSuppliesListBloc(
+                firestoreOfficeSupplies:
+                    RepositoryProvider.of<FirestoreOfficeSupplies>(context),
+              ),
         ),
         BlocProvider(
-          create: (context) => PullOutSuppliesFromDbBloc(
-              suppliesDbRepo:
-                  RepositoryProvider.of<FirestoreSuppliesDb>(context),
-              auth: RepositoryProvider.of<MyFirebaseAuth>(context),
-              userDbRepo:
-                  RepositoryProvider.of<FirestoreUsersDbRepository>(context)),
+          create:
+              (context) => PullOutOfficeSuppliesFromDbBloc(
+                // suppliesDbRepo: RepositoryProvider.of<FirestoreSuppliesDb>(
+                //   context,
+                // ),
+                auth: RepositoryProvider.of<MyFirebaseAuth>(context),
+                // userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
+                //   context,
+                // ),
+                // transmitalHistoryDb:
+                //     RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+                //       context,
+                //     ),
+                firestoreOfficeSupplies: RepositoryProvider.of<FirestoreOfficeSupplies>(
+                  context,
+                ),
+              ),
         ),
       ],
       child: Body(),
@@ -52,8 +67,8 @@ class Body extends StatelessWidget {
 
     GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey();
 
-    final pulloutSuppliesList = context.read<PullOutSuppliesListBloc>();
-    final pulloutSuppliesFromDbBloc = context.read<PullOutSuppliesFromDbBloc>();
+    final pulloutOfficeSuppliesList = context.read<PullOutOfficeSuppliesListBloc>();
+    final pulloutOfficeSuppliesFromDbBloc = context.read<PullOutOfficeSuppliesFromDbBloc>();
 
     bool isNumber(value) {
       return double.tryParse(value) != null;
@@ -79,17 +94,18 @@ class Body extends StatelessWidget {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: IconButton(
-                              onPressed: () =>
-                                  Navigator.pushNamed(context, suppliesScreen),
+                              onPressed:
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    officeSuppliesScreen,
+                                  ),
                               icon: Icon(Icons.arrow_back),
                             ),
                           ),
                           Center(
                             child: Text(
                               "Pull-Out Supplies",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
+                              style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -197,79 +213,96 @@ class Body extends StatelessWidget {
                                 ),
                                 ActionButtons(
                                   frmKey: frmKey,
-                                  supplyIdNameController: supplyIdNameController,
-                                  supplyAmountController: supplyAmountController,
-                                  pulloutSuppliesList: pulloutSuppliesList,
+                                  supplyIdNameController:
+                                      supplyIdNameController,
+                                  supplyAmountController:
+                                      supplyAmountController,
+                                  pulloutSuppliesList: pulloutOfficeSuppliesList,
                                   pulloutSuppliesFromDbBloc:
-                                      pulloutSuppliesFromDbBloc,
+                                      pulloutOfficeSuppliesFromDbBloc,
                                   requestByController: requestByController,
                                   outByController: outByController,
                                   receivedOnSiteByController:
                                       receivedOnSiteByController,
                                 ),
-                                BlocListener<PullOutSuppliesListBloc,
-                                    PullOutSuppliesListState>(
+                                BlocListener<
+                                  PullOutOfficeSuppliesListBloc,
+                                  PullOutOfficeSuppliesListState
+                                >(
                                   listener: (context, state) {
                                     if (state
-                                        is PullOutSuppliesListStateError) {
+                                        is PullOutOfficeSuppliesListStateError) {
                                       scaffoldMessengerKey.currentState!
-                                          .showSnackBar(SnackBar(
-                                              content: Text(state.error)));
+                                          .showSnackBar(
+                                            SnackBar(
+                                              content: Text(state.error),
+                                            ),
+                                          );
                                       context
-                                          .read<PullOutSuppliesListBloc>()
-                                          .add(ResetPullOutSuppliesListEvent());
+                                          .read<PullOutOfficeSuppliesListBloc>()
+                                          .add(ResetPullOutOfficeSuppliesListEvent());
                                     }
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.black),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
+                                      border: Border.all(color: Colors.black),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                     child: Column(
                                       children: [
                                         Container(
                                           height: 50,
                                           decoration: BoxDecoration(
-                                              border: Border(
-                                                  bottom: BorderSide(
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
-                                                      width: 2))),
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                                width: 2,
+                                              ),
+                                            ),
+                                          ),
                                           child: Row(
                                             children: [
                                               TableTitle(displayText: "ID"),
                                               TableTitle(displayText: "NAME"),
                                               TableTitle(
-                                                  displayText:
-                                                      "REQUEST AMOUNT"),
+                                                displayText: "REQUEST AMOUNT",
+                                              ),
                                               TableTitle(
-                                                  displayText: "STORED AMOUNT"),
-                                              SizedBox(
-                                                width: 100,
-                                              )
+                                                displayText: "STORED AMOUNT",
+                                              ),
+                                              SizedBox(width: 100),
                                             ],
                                           ),
                                         ),
-                                        BlocBuilder<PullOutSuppliesListBloc,
-                                            PullOutSuppliesListState>(
+                                        BlocBuilder<
+                                          PullOutOfficeSuppliesListBloc,
+                                          PullOutOfficeSuppliesListState
+                                        >(
                                           builder: (context, state) {
                                             {
                                               if (state
-                                                  is PullOutSuppliesListStateInitial) {
-                                                final currentSupplyList = state
-                                                    .items; // Get items from initial state
-                                                          
+                                                  is PullOutOfficeSuppliesListStateInitial) {
+                                                final currentSupplyList =
+                                                    state
+                                                        .items; // Get items from initial state
+
                                                 return ItemList(
-                                                    currentSupplyList:
-                                                        currentSupplyList);
+                                                  currentSupplyList:
+                                                      currentSupplyList,
+                                                );
                                               } else if (state
-                                                  is PullOutSuppliesListStateError) {
-                                                final currentSupplyList = state
-                                                    .items; // Get items from initial state
-                                                          
+                                                  is PullOutOfficeSuppliesListStateError) {
+                                                final currentSupplyList =
+                                                    state
+                                                        .items; // Get items from initial state
+
                                                 return ItemList(
-                                                    currentSupplyList:
-                                                        currentSupplyList);
+                                                  currentSupplyList:
+                                                      currentSupplyList,
+                                                );
                                               } else {
                                                 return Center(
                                                   child: Container(),
@@ -316,8 +349,8 @@ class ActionButtons extends StatelessWidget {
   final GlobalKey<FormState> frmKey;
   final TextEditingController supplyIdNameController;
   final TextEditingController supplyAmountController;
-  final PullOutSuppliesListBloc pulloutSuppliesList;
-  final PullOutSuppliesFromDbBloc pulloutSuppliesFromDbBloc;
+  final PullOutOfficeSuppliesListBloc pulloutSuppliesList;
+  final PullOutOfficeSuppliesFromDbBloc pulloutSuppliesFromDbBloc;
   final TextEditingController requestByController;
   final TextEditingController outByController;
   final TextEditingController receivedOnSiteByController;
@@ -330,12 +363,12 @@ class ActionButtons extends StatelessWidget {
         ElevatedButton(
           onPressed: () {
             if (frmKey.currentState!.validate()) {
-              context.read<PullOutSuppliesListBloc>().add(
-                    AddItemToPullOutSuppliesListEvent(
-                      idorName: supplyIdNameController.text.toUpperCase(),
-                      amount: double.parse(supplyAmountController.text),
-                    ),
-                  );
+              context.read<PullOutOfficeSuppliesListBloc>().add(
+                AddItemToPullOutOfficeSuppliesListEvent(
+                  idorName: supplyIdNameController.text.toUpperCase(),
+                  amount: double.parse(supplyAmountController.text),
+                ),
+              );
             }
           },
           style: ButtonStyle(
@@ -344,46 +377,50 @@ class ActionButtons extends StatelessWidget {
           child: Text("Add Item to List"),
         ),
         ElevatedButton(
-            onPressed: () {
-              if (frmKey.currentState!.validate()) {
-                final state = pulloutSuppliesList.state;
-                if (state is PullOutSuppliesListStateInitial) {
-                  final currentItems = state.items;
-                  if (currentItems.isNotEmpty || currentItems != []) {
-                    pulloutSuppliesFromDbBloc
-                        .add(StartPullOutSuppliesFromDbEvent(
+          onPressed: () {
+            if (frmKey.currentState!.validate()) {
+              final state = pulloutSuppliesList.state;
+              if (state is PullOutOfficeSuppliesListStateInitial) {
+                final currentItems = state.items;
+                if (currentItems.isNotEmpty || currentItems != []) {
+                  pulloutSuppliesFromDbBloc.add(
+                    StartPullOutOfficeSuppliesFromDbEvent(
                       items: currentItems,
                       requestBy: requestByController.text,
                       outBy: outByController.text.toUpperCase(),
                       receivedOnSiteBy:
                           receivedOnSiteByController.text.toUpperCase(),
-                    ));
-                    showDialog(
-                        context: context,
-                        builder: (contetx) {
-                          return AlertDialog(
-                            title: Text("Record Sucessful"),
-                            actions: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pushNamedAndRemoveUntil(
-                                      context,
-                                      suppliesScreen,
-                                      (Route<dynamic> route) => false,
-                                    );
-                                  },
-                                  child: Text("OK")),
-                            ],
-                          );
-                        });
-                  }
+                    ),
+                  );
+                  showDialog(
+                    context: context,
+                    builder: (contetx) {
+                      return AlertDialog(
+                        title: Text("Record Sucessful"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                suppliesScreen,
+                                (Route<dynamic> route) => false,
+                              );
+                            },
+                            child: Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 }
               }
-            },
-            style: ButtonStyle(
-              side: WidgetStatePropertyAll(BorderSide(color: Colors.grey)),
-            ),
-            child: Text("Pull Out Items")),
+            }
+          },
+          style: ButtonStyle(
+            side: WidgetStatePropertyAll(BorderSide(color: Colors.grey)),
+          ),
+          child: Text("Pull Out Items"),
+        ),
       ],
     );
   }
@@ -414,13 +451,11 @@ class ItemList extends StatelessWidget {
             SizedBox(
               width: 100,
               child: IconButton(
-                onPressed: () => context
-                    .read<PullOutSuppliesListBloc>()
-                    .add(RemoveItemFormPullOutSuppliesListEvent(index: index)),
-                icon: Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.red,
-                ),
+                onPressed:
+                    () => context.read<PullOutOfficeSuppliesListBloc>().add(
+                      RemoveItemFormPullOutSuppliesListEvent(index: index),
+                    ),
+                icon: Icon(Icons.delete_outline_rounded, color: Colors.red),
               ),
             ),
           ],
@@ -431,10 +466,7 @@ class ItemList extends StatelessWidget {
 }
 
 class ListRowContent extends StatelessWidget {
-  const ListRowContent({
-    super.key,
-    required this.displayTxt,
-  });
+  const ListRowContent({super.key, required this.displayTxt});
 
   final String displayTxt;
 
@@ -449,10 +481,7 @@ class ListRowContent extends StatelessWidget {
 }
 
 class TableTitle extends StatelessWidget {
-  const TableTitle({
-    super.key,
-    required this.displayText,
-  });
+  const TableTitle({super.key, required this.displayText});
 
   final String displayText;
 
@@ -462,10 +491,9 @@ class TableTitle extends StatelessWidget {
       child: Center(
         child: Text(
           displayText,
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge!
-              .copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
     );

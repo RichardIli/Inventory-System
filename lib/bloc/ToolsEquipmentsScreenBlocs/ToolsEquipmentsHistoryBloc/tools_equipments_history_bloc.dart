@@ -15,7 +15,7 @@ class ToolsEquipmentsHistoryBloc
       emit(ToolsEquipmentsHistoryLoading());
       try {
         final List<Map<String, dynamic>> fetchedData = transmitalHistoryDb
-            .itemHistory(itemId: event.itemId);
+            .itemHistoryComplete(itemId: event.itemId, itemName: event.itemName);
 
         fetchedData.sort(
           (a, b) => DateTime.parse(

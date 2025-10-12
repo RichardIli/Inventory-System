@@ -5,5 +5,6 @@ sealed class ToolsEquipmentsHistoryEvent {}
 
 class FetchToolsEquipmentsHistoryEvent extends ToolsEquipmentsHistoryEvent{
   final String itemId;
-  FetchToolsEquipmentsHistoryEvent({required this.itemId});
+  final String itemName;
+  FetchToolsEquipmentsHistoryEvent({required this.itemId,required this.itemName});
 }

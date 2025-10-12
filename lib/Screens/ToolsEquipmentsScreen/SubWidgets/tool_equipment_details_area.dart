@@ -190,7 +190,7 @@ class _ToolsEquipmentsDetailsAreaState
                             if (state is ToolsEquipmentsHistoryInitial) {
                               context.read<ToolsEquipmentsHistoryBloc>().add(
                                 FetchToolsEquipmentsHistoryEvent(
-                                  itemId: widget.itemId,
+                                  itemId: widget.itemId,itemName: widget.itemName
                                 ),
                               );
                               return Center(child: CircularProgressIndicator());

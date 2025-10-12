@@ -112,7 +112,7 @@ class _OfficeSupplyListState extends State<OfficeSupplyList> {
                               passedData: data,
                             );
                             // The navigation is in the listener
-                            Navigator.pushNamed(context, supplyDetailsScreen);
+                            Navigator.pushNamed(context, officeSupplyDetailsScreen);
                           },
                           child: Container(
                             height: 50,

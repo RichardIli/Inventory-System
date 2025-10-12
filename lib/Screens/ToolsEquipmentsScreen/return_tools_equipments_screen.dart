@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_tools_equipment_db.dart';
+import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
 import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/SharedComponents/custom_appbar.dart';
@@ -10,6 +11,7 @@ import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ReturnToolsEquipmentsListBloc/return_tools_equipments_list_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ReturnToolsEquipmentsToDbBloc/return_tools_equipments_to_db_bloc.dart';
+import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentBloc/tools_equipment_bloc.dart';
 
 class ReturnToolsEquipmentsScreen extends StatelessWidget {
   const ReturnToolsEquipmentsScreen({super.key});
@@ -26,6 +28,8 @@ class ReturnToolsEquipmentsScreen extends StatelessWidget {
             auth: RepositoryProvider.of<MyFirebaseAuth>(context),
             userDbRepo:
                 RepositoryProvider.of<FirestoreUsersDbRepository>(context),
+            transmitalHistoryDb: RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+                context),
           ),
         ),
         BlocProvider(
@@ -36,6 +40,9 @@ class ReturnToolsEquipmentsScreen extends StatelessWidget {
             auth: RepositoryProvider.of<MyFirebaseAuth>(context),
             userDbRepo:
                 RepositoryProvider.of<FirestoreUsersDbRepository>(context),
+            transmitalHistoryDb: RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+              context,
+            ),
           ),
         ),
       ],
@@ -65,6 +72,9 @@ class Body extends StatelessWidget {
         ReturnToolsEquipmentsToDbState>(
       listener: (context, state) {
         if (state is ReturnedToolsEquipmentsToDb) {
+          context.read<ToolsEquipmentBloc>().add(
+                FetchToolsEquipmentsData(search: ""),
+              );
           if (state.success) {
             showDialog(
               barrierDismissible: false,
@@ -75,10 +85,9 @@ class Body extends StatelessWidget {
                   actions: [
                     TextButton(
                         onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
+                          Navigator.pushNamed(
                             context,
-                            toolsEquipmentsScreen,
-                            (Route<dynamic> route) => false,
+                            toolsEquipmentsScreen
                           );
                         },
                         child: Text("OK")),
@@ -126,136 +135,139 @@ class Body extends StatelessWidget {
                           ],
                         ),
                         Expanded(
-                          child: Form(
-                            key: frmKey,
-                            child: Column(
-                              spacing: 20,
-                              children: [
-                                TextFormField(
-                                  controller: toolsEqipmentsIdNameController,
-                                  decoration: customInputDecoration.copyWith(
-                                    labelText: "Enter Id or Name...",
-                                    errorBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Colors.redAccent,
-                                      ),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'This Field is Required';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                TextFormField(
-                                  controller: returnByController,
-                                  decoration: customInputDecoration.copyWith(
-                                    labelText: "Return By...",
-                                    errorBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Colors.redAccent,
-                                      ),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'This Field is Required';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                ActionButtons(
-                                  frmKey: frmKey,
-                                  toolsEquipmentsIdNameController:
-                                      toolsEqipmentsIdNameController,
-                                  returnByController: returnByController,
-                                  returnToolsEquipmentsList:
-                                      returnToolsEquipmentsList,
-                                  returnToolsEquipmentsToDbBloc:
-                                      returnToolsEquipmentsFromDbBloc,
-                                ),
-                                Expanded(
-                                  child: BlocListener<
-                                      ReturnToolsEquipmentsListBloc,
-                                      ReturnToolsEquipmentsListState>(
-                                    listener: (context, state) {
-                                      if (state
-                                          is ReturnToolsEquipmentsListStateError) {
-                                        scaffoldMessengerKey.currentState!
-                                            .showSnackBar(SnackBar(
-                                                content: Text(state.error)));
-                                        context
-                                            .read<
-                                                ReturnToolsEquipmentsListBloc>()
-                                            .add(
-                                                ResetReturnToolsEquipmentsListEvent());
-                                      }
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: Colors.black),
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                                border: Border(
-                                                    bottom: BorderSide(
-                                                        color: Theme.of(context)
-                                                            .primaryColor,
-                                                        width: 2))),
-                                            child: Row(
-                                              children: [
-                                                TableTitle(displayText: "ID"),
-                                                TableTitle(displayText: "NAME"),
-                                                SizedBox(
-                                                  width: 100,
-                                                )
-                                              ],
-                                            ),
+                          child: Column(
+                            children: [
+                              Form(
+                                key: frmKey,
+                                child: Column(
+                                  spacing: 20,
+                                  children: [
+                                    TextFormField(
+                                      controller: toolsEqipmentsIdNameController,
+                                      decoration: customInputDecoration.copyWith(
+                                        labelText: "Enter Id or Name...",
+                                        errorBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.redAccent,
                                           ),
-                                          BlocBuilder<
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'This Field is Required';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    TextFormField(
+                                      controller: returnByController,
+                                      decoration: customInputDecoration.copyWith(
+                                        labelText: "Return By...",
+                                        errorBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.redAccent,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'This Field is Required';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    ActionButtons(
+                                      frmKey: frmKey,
+                                      toolsEquipmentsIdNameController:
+                                          toolsEqipmentsIdNameController,
+                                      returnByController: returnByController,
+                                      returnToolsEquipmentsList:
+                                          returnToolsEquipmentsList,
+                                      returnToolsEquipmentsToDbBloc:
+                                          returnToolsEquipmentsFromDbBloc,
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // list container moved outside the Form so its Expanded
+                              // child has a bounded height from this Expanded sibling.
+                              Expanded(
+                                child: BlocListener<
+                                    ReturnToolsEquipmentsListBloc,
+                                    ReturnToolsEquipmentsListState>(
+                                  listener: (context, state) {
+                                    if (state
+                                        is ReturnToolsEquipmentsListStateError) {
+                                      scaffoldMessengerKey.currentState!
+                                          .showSnackBar(SnackBar(
+                                              content: Text(state.error)));
+                                      context
+                                          .read<ReturnToolsEquipmentsListBloc>()
+                                          .add(
+                                              ResetReturnToolsEquipmentsListEvent());
+                                    }
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.black),
+                                        borderRadius: BorderRadius.circular(10)),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Container(
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                              border: Border(
+                                                  bottom: BorderSide(
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
+                                                      width: 2))),
+                                          child: Row(
+                                            children: [
+                                              TableTitle(displayText: "ID"),
+                                              TableTitle(displayText: "NAME"),
+                                              SizedBox(
+                                                width: 100,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: BlocBuilder<
                                               ReturnToolsEquipmentsListBloc,
                                               ReturnToolsEquipmentsListState>(
                                             builder: (context, state) {
-                                              {
-                                                if (state
-                                                    is ReturnToolsEquipmentsListStateInitial) {
-                                                  final currentToolsEquipmentsList =
-                                                      state
-                                                          .items; // Get items from initial state
+                                              if (state
+                                                  is ReturnToolsEquipmentsListStateInitial) {
+                                                final currentToolsEquipmentsList =
+                                                    state.items; // Get items from initial state
 
-                                                  return ItemList(
-                                                      currentToolsEquipmentsList:
-                                                          currentToolsEquipmentsList);
-                                                } else if (state
-                                                    is ReturnToolsEquipmentsListStateError) {
-                                                  final currentToolsEquipmentsList =
-                                                      state
-                                                          .items; // Get items from initial state
+                                                return ItemList(
+                                                    currentToolsEquipmentsList:
+                                                        currentToolsEquipmentsList);
+                                              } else if (state
+                                                  is ReturnToolsEquipmentsListStateError) {
+                                                final currentToolsEquipmentsList =
+                                                    state.items; // Get items from initial state
 
-                                                  return ItemList(
-                                                      currentToolsEquipmentsList:
-                                                          currentToolsEquipmentsList);
-                                                } else {
-                                                  return Center(
-                                                    child: Container(),
-                                                  );
-                                                }
+                                                return ItemList(
+                                                    currentToolsEquipmentsList:
+                                                        currentToolsEquipmentsList);
+                                              } else {
+                                                return Center(
+                                                  child: Container(),
+                                                );
                                               }
                                             },
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                         CustomFooter(),
@@ -390,28 +402,33 @@ class ItemList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
+      primary: false,
+      physics: AlwaysScrollableScrollPhysics(),
       itemCount: currentToolsEquipmentsList.length,
       itemBuilder: (context, index) {
         final toolsEquipmentsName = currentToolsEquipmentsList[index]["name"];
         final toolsEquipmentsId = currentToolsEquipmentsList[index]["id"];
-        return Row(
-          children: [
-            ListRowContent(displayTxt: toolsEquipmentsId),
-            ListRowContent(displayTxt: toolsEquipmentsName),
-            SizedBox(
-              width: 100,
-              child: IconButton(
-                onPressed: () => context
-                    .read<ReturnToolsEquipmentsListBloc>()
-                    .add(RemoveItemFormReturnToolsEquipmentsListEvent(
-                        index: index)),
-                icon: Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.red,
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+          child: Row(
+            children: [
+              ListRowContent(displayTxt: toolsEquipmentsId),
+              ListRowContent(displayTxt: toolsEquipmentsName),
+              SizedBox(
+                width: 100,
+                child: IconButton(
+                  onPressed: () => context
+                      .read<ReturnToolsEquipmentsListBloc>()
+                      .add(RemoveItemFormReturnToolsEquipmentsListEvent(
+                          index: index)),
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    color: Colors.red,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
