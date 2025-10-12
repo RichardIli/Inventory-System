@@ -5,6 +5,7 @@ sealed class OfficeSupplyHistoryEvent {}
 
 final class FetchOfficeSupplyHistoryEvent extends OfficeSupplyHistoryEvent{
   final String supplyID;
+  final String supplyName;
 
-  FetchOfficeSupplyHistoryEvent({required this.supplyID});
+  FetchOfficeSupplyHistoryEvent({required this.supplyID,required this.supplyName});
 }

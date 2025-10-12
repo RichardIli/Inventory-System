@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_office_supplies.dart';
-import 'package:inventory_system/FirebaseConnection/firestore_supplies.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
 import 'package:inventory_system/Routes/routes.dart';
@@ -31,17 +30,14 @@ class PullOutOfficeSuppliesScreen extends StatelessWidget {
         BlocProvider(
           create:
               (context) => PullOutOfficeSuppliesFromDbBloc(
-                // suppliesDbRepo: RepositoryProvider.of<FirestoreSuppliesDb>(
-                //   context,
-                // ),
                 auth: RepositoryProvider.of<MyFirebaseAuth>(context),
-                // userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
-                //   context,
-                // ),
-                // transmitalHistoryDb:
-                //     RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
-                //       context,
-                //     ),
+                userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
+                  context,
+                ),
+                transmitalHistoryDb:
+                    RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+                      context,
+                    ),
                 firestoreOfficeSupplies: RepositoryProvider.of<FirestoreOfficeSupplies>(
                   context,
                 ),

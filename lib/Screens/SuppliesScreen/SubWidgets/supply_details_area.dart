@@ -90,7 +90,6 @@ class SupplyDetailsArea extends StatelessWidget {
                             RestockSupplyButtonState
                           >(
                             listener: (context, state) {
-                              // TODO: check if this will update the list after restocking
                               if (state is RestockSupplyButtonLoaded) {
                                 if (state.success) {
                                   context.read<SuppliesBloc>().add(

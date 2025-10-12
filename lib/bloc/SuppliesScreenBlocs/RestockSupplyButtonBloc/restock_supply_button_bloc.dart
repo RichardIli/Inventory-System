@@ -23,7 +23,6 @@ class RestockSupplyButtonBloc
     on<PressedRestockSupplyButtonEvent>((event, emit) {
       emit(RestockSupplyButtonLoading());
       try {
-        // TODO: test this feature
         final String email = auth.getCurrentUserEmail("user1@example.com");
         final List<Map<String, dynamic>> userData = usersDbRepo
             .getUserDataBasedOnEmail(email);

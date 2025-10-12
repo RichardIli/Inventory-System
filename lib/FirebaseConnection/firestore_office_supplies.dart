@@ -1,27 +1,19 @@
 // ignore_for_file: avoid_print, deprecated_member_use, avoid_web_libraries_in_flutter
 
 import 'package:flutter/foundation.dart';
-import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 import 'package:inventory_system/Models/supply_model.dart';
 
 import 'dart:html' as html;
 
+// TODO: Test all the feature of the supplies and the office supplies db
+
 class FirestoreOfficeSupplies {
-  final FirestoreTransmitalHistoryRepo _transmitalHistoryRepo =
-      FirestoreTransmitalHistoryRepo();
 
-  void _newHistory(String id, String name, Map<String, dynamic> data) {
-    // Find the item in the list by its ID
-    final itemIndex = officeSuppliesList.indexWhere((item) => item['id'] == id);
-    final history =
-        officeSuppliesList[itemIndex]["history"] as List<Map<String, dynamic>>;
-
-    data["id"] = history.length;
-
-    officeSuppliesList[itemIndex]["history"].add(data);
-
-    _transmitalHistoryRepo.recordHistory(data);
+  // Read/Get all item
+  List<Map<String, dynamic>> officeSuppliesData() {
+    return officeSuppliesList;
   }
+
 
   String createUniqueId() {
     // Get the current year
@@ -68,26 +60,11 @@ class FirestoreOfficeSupplies {
   }
 
   // Create new Supply
-  bool addNewOfficeSupply(SupplyDataModel supplyData) {
+  bool addNewOfficeSupply(Map<String, dynamic> supplyDatas) {
     try {
-      String uniqueID = officeSuppliesList.length.toString();
-
-      Map<String, dynamic> supplyDatas = {
-        "id": uniqueID,
-        "name": supplyData.name.toUpperCase(),
-        "amount": supplyData.amount,
-        "unit": supplyData.unit.toUpperCase(),
-      };
-
-      Map<String, dynamic> historyData = {
-        'processedBy': supplyData.processedBy,
-        "inDate": DateTime.now(),
-        "inAmount": supplyData.amount,
-      };
-
       officeSuppliesList.add(supplyDatas);
 
-      _newHistory(uniqueID, supplyData.name.toUpperCase(), historyData);
+      // _newHistory(uniqueID, supplyName.toUpperCase(), historyData);
 
       return true;
     } catch (e) {
@@ -95,35 +72,23 @@ class FirestoreOfficeSupplies {
     }
   }
 
-  bool pickupSupply(
-    String id,
-    String processedBy,
-    double pickupAmount,
-    String requestBy,
-    String outBy,
-    String receivedOnSiteBy,
-  ) {
-    Map<String, dynamic> filteredSupply = filterSupplyByExactId(id);
+  bool pickupSupply(String id, double storedAmount, double pickupAmount) {
+    try {
+      double newAmount = storedAmount - pickupAmount;
 
-    double storedAmount = filteredSupply["amount"];
-    Map<String, dynamic> historyData = {
-      "outBy": outBy,
-      'processedBy': processedBy,
-      "receivedOnSiteBy": receivedOnSiteBy,
-      "releaseDate": DateTime.now(),
-      "requestBy": requestBy,
-      "requestAmount": pickupAmount,
-    };
+      final itemIndex = officeSuppliesList.indexWhere(
+        (item) => item['id'] == id,
+      );
 
-    double newAmount = storedAmount - pickupAmount;
+      officeSuppliesList[itemIndex]["amount"] = newAmount;
 
-    final itemIndex = officeSuppliesList.indexWhere((item) => item['id'] == id);
-
-    officeSuppliesList[itemIndex]["amount"] = newAmount;
-
-    _newHistory(id, filteredSupply['name'], historyData);
-
-    return true;
+      return true;
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('Error in pickupSupply: $e');
+      }
+      return false;
+    }
   }
 
   Map<String, dynamic> filterSupplyByExactId(String id) {
@@ -160,27 +125,17 @@ class FirestoreOfficeSupplies {
     }
   }
 
-  bool restockSupply(String processedBy, String id, double inAmount) {
+  bool restockSupply(String id, double storedAmount, double inAmount) {
     try {
-      Map<String, dynamic> filteredSupply = filterSupplyByExactId(id);
+      // make a new amount after adding the restock amount to the current amount in the storage
+      final double newAmount = storedAmount + inAmount;
 
-      double storedAmount = filteredSupply["amount"];
-
-      double newAmount = storedAmount + inAmount;
-
-      Map<String, dynamic> historyData = {
-        'processedBy': processedBy.toUpperCase(),
-        "inAmount": inAmount,
-        "inDate": DateTime.now(),
-      };
-
-      final itemIndex = officeSuppliesList.indexWhere(
+      final int itemIndex = officeSuppliesList.indexWhere(
         (item) => item['id'] == id,
       );
 
+      // assign a new value or update the value
       officeSuppliesList[itemIndex]["amount"] = newAmount;
-
-      _newHistory(id, filteredSupply['name'], historyData);
 
       return true;
     } catch (e) {

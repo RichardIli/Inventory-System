@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
 // import 'dart:html' as html;
 
 class FirestoreSuppliesDb {
-  final FirestoreTransmitalHistoryRepo _transmitalHistoryRepo =
-      FirestoreTransmitalHistoryRepo();
 
   // Read/Get all item
   List<Map<String, dynamic>> suppliesData() {

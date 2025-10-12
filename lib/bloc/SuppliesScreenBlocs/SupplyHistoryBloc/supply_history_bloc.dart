@@ -23,7 +23,6 @@ class SupplyHistoryBloc extends Bloc<SupplyHistoryEvent, SupplyHistoryState> {
           ).compareTo(DateTime.parse(_getRecordDate(a))),
         );
 
-        // final data = db.supplyHistory(event.supplyID);
         emit(SupplyHistoryLoaded(fetchedData));
       } catch (e) {
         emit(SupplyHistoryStateError(e.toString()));
