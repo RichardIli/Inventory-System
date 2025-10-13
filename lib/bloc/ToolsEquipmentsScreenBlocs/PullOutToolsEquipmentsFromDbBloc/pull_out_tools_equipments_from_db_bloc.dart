@@ -39,7 +39,6 @@ class PullOutToolsEquipmentsFromDbBloc
 
         for (Map<String, dynamic> item in currentList) {
           try {
-
             toolsEquipmentsRepo.updateItemStatus(
               id: item["id"].toString(),
               status: "OUTSIDE",
@@ -66,6 +65,10 @@ class PullOutToolsEquipmentsFromDbBloc
       } catch (e) {
         emit(PullOutToolsEquipmentsFromDbStateError(error: e.toString()));
       }
+    });
+
+    on<ResetPullOutToolsEquipmentsFromDbEvent>((event, emit) {
+      emit(PullOutToolsEquipmentsFromDbInitial());
     });
   }
 }

@@ -5,7 +5,6 @@ import 'package:inventory_system/Models/supply_model.dart';
 
 import 'dart:html' as html;
 
-// TODO: Test all the feature of the supplies and the office supplies db
 
 class FirestoreOfficeSupplies {
 
@@ -108,11 +107,11 @@ class FirestoreOfficeSupplies {
     }
   }
 
-  Map<String, dynamic> filterSupplyByExactName(String name) {
+ Map<String, dynamic> filterSupplyByExactName(String name) {
     try {
       final datas =
           officeSuppliesList
-              .where((element) => element["name"] == name)
+              .where((element) => element["name"].toString().toUpperCase() == name)
               .toList()
               .first;
       return datas;

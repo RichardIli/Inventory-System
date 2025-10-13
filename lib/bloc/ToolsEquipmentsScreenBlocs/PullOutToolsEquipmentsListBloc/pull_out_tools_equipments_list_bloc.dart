@@ -104,16 +104,18 @@ class PullOutToolsEquipmentsListBloc
     Emitter<PullOutToolsEquipmentsListState> emit,
   ) {
     final status = fetchedData["status"];
-    
+
     // ITEM HISTORY FROM THE TRANSMITAL HISTORY DB
-    final record = transmitalHistoryDb.itemHistory(itemId: fetchedData["id"]);
+    final record = transmitalHistoryDb.itemHistoryComplete(
+      itemId: fetchedData["id"],
+      itemName: fetchedData["name"],
+    );
 
     final lastRecord = record.last;
-    print(lastRecord);
 
     final outby = lastRecord["outBy"];
     final outdate =
-        (lastRecord["outDate"] != null) ? lastRecord["outDate"] : null;
+        (lastRecord["releaseDate"] != null) ? lastRecord["releaseDate"] : null;
     final inby = lastRecord["inBy"];
     final indate = (lastRecord["inDate"] != null) ? lastRecord["inDate"] : null;
     final requestBy = lastRecord["requestBy"];
@@ -121,9 +123,6 @@ class PullOutToolsEquipmentsListBloc
 
     final formattedLastRecord =
         "In By: $inby \nIn Date: ${_formatDate(indate)} \nOut By: $outby \nOut Date: ${_formatDate(outdate)} \nRequest By: $requestBy \nSite Personel: $sitePersonel";
-    
-    print(fetchedData);
-    
 
     // Checking if the item is valid for out
     if (status != "STORE ROOM") {
@@ -154,7 +153,11 @@ class PullOutToolsEquipmentsListBloc
     emit(PullOutToolsEquipmentsListStateInitial(items: updatedSupplyList));
   }
 
-  String _formatDate(String isoString) {
+  String _formatDate(String? isoString) {
+    if (isoString == null) {
+      return "";
+    }
+
     // 1. Parse the ISO 8601 string into a DateTime object.
     // The 'Z' at the end indicates UTC time, so use parseUtc().
     final DateTime dateTime = DateTime.parse(isoString).toLocal();

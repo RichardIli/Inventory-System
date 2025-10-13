@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:inventory_system/FirebaseConnection/firebaseauth_connection.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_tools_equipment_db.dart';
 import 'package:inventory_system/FirebaseConnection/firestore_transmital_history_db.dart';
-import 'package:inventory_system/FirebaseConnection/firestore_users_db.dart';
 import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/SharedComponents/custom_appbar.dart';
 import 'package:inventory_system/SharedComponents/custom_footer.dart';
@@ -27,20 +25,6 @@ class ReleaseToolsEquipmentsScreen extends StatelessWidget {
                     RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
                       context,
                     ),
-                transmitalHistoryDb:
-                    RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
-                      context,
-                    ),
-              ),
-        ),
-        BlocProvider(
-          create:
-              (context) => PullOutToolsEquipmentsFromDbBloc(
-                toolsEquipmentsRepo: RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context),
-                auth: RepositoryProvider.of<MyFirebaseAuth>(context),
-                userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
-                  context,
-                ),
                 transmitalHistoryDb:
                     RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
                       context,
@@ -91,6 +75,9 @@ class Body extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () {
+                        contetx.read<PullOutToolsEquipmentsFromDbBloc>().add(
+                          ResetPullOutToolsEquipmentsFromDbEvent(),
+                        );
                         Navigator.pushNamed(context, toolsEquipmentsScreen);
                       },
                       child: Text("OK"),
@@ -283,17 +270,23 @@ class Body extends StatelessWidget {
                                               PullOutToolsEquipmentsListState
                                             >(
                                               builder: (context, state) {
-                                                if (state is PullOutToolsEquipmentsListStateInitial) {
-                                                  final currentToolsEquipmentsList = state.items;
+                                                if (state
+                                                    is PullOutToolsEquipmentsListStateInitial) {
+                                                  final currentToolsEquipmentsList =
+                                                      state.items;
 
                                                   return ItemList(
-                                                    currentToolsEquipmentsList: currentToolsEquipmentsList,
+                                                    currentToolsEquipmentsList:
+                                                        currentToolsEquipmentsList,
                                                   );
-                                                } else if (state is PullOutToolsEquipmentsListStateError) {
-                                                  final currentToolsEquipmentsList = state.items;
+                                                } else if (state
+                                                    is PullOutToolsEquipmentsListStateError) {
+                                                  final currentToolsEquipmentsList =
+                                                      state.items;
 
                                                   return ItemList(
-                                                    currentToolsEquipmentsList: currentToolsEquipmentsList,
+                                                    currentToolsEquipmentsList:
+                                                        currentToolsEquipmentsList,
                                                   );
                                                 } else {
                                                   return Center(

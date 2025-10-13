@@ -11,6 +11,7 @@ import 'package:inventory_system/Routes/routes.dart';
 import 'package:inventory_system/Theme/theme.dart';
 import 'package:inventory_system/bloc/DashboardScreenBlocs/DashboardToolsEquipmentOutItemListBloc/dashboard_tools_equipments_outside_list_bloc.dart';
 import 'package:inventory_system/bloc/DashboardScreenBlocs/DashboardUsersCountBloc/dashboard_users_count_bloc.dart';
+import 'package:inventory_system/bloc/OfficeSuppliesScreenBlocs/OfficeSuppliesBloc/office_supplies_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/QRGeneratorBloc/qr_generator_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SaveQRCodeButtonBloc/save_qr_code_button_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SelectedItemCubit/selected_item_cubit.dart';
@@ -18,6 +19,8 @@ import 'package:inventory_system/bloc/SideMenuBloc/side_menu_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/AppbarUserNameBloc/user_name_appbar_bloc.dart';
 import 'package:inventory_system/bloc/SuppliesScreenBlocs/SuppliesBloc/supplies_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/GroupOfToolsEquipmentsCountByNameBloc/group_of_tools_equipments_count_bloc.dart';
+import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/PullOutToolsEquipmentsFromDbBloc/pull_out_tools_equipments_from_db_bloc.dart';
+import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ReturnToolsEquipmentsToDbBloc/return_tools_equipments_to_db_bloc.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/ToolsEquipmentBloc/tools_equipment_bloc.dart';
 import 'package:inventory_system/bloc/TransmitalHistoryScreenBlocs/TransmitalHistoryListBloc/transmital_history_list_bloc.dart';
 import 'package:inventory_system/bloc/UserScreenBlocs/AddUserCubit/add_user_cubit.dart';
@@ -93,6 +96,13 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create:
+                (context) => OfficeSuppliesBloc(
+                  firestoreOfficeSupplies:
+                      RepositoryProvider.of<FirestoreOfficeSupplies>(context),
+                ),
+          ),
+          BlocProvider(
+            create:
                 (context) => SaveQrCodeButtonBloc(
                   qrCodeGeneratorRepository:
                       RepositoryProvider.of<QrCodeGeneratorRepository>(context),
@@ -138,6 +148,38 @@ class MyApp extends StatelessWidget {
                   ),
                   userDbrepository:
                       RepositoryProvider.of<FirestoreUsersDbRepository>(
+                        context,
+                      ),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => PullOutToolsEquipmentsFromDbBloc(
+                  toolsEquipmentsRepo: RepositoryProvider.of<
+                    FirestoreToolsEquipmentDBRepository
+                  >(context),
+                  auth: RepositoryProvider.of<MyFirebaseAuth>(context),
+                  userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
+                    context,
+                  ),
+                  transmitalHistoryDb:
+                      RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+                        context,
+                      ),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => ReturnToolsEquipmentsToDbBloc(
+                  toolsEquipmentsRepo: RepositoryProvider.of<
+                    FirestoreToolsEquipmentDBRepository
+                  >(context),
+                  auth: RepositoryProvider.of<MyFirebaseAuth>(context),
+                  userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
+                    context,
+                  ),
+                  transmitalHistoryDb:
+                      RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
                         context,
                       ),
                 ),

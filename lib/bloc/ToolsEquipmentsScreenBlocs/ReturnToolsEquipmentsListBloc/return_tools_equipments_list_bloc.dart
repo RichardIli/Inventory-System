@@ -27,7 +27,7 @@ class ReturnToolsEquipmentsListBloc
       final idorName = event.idorName;
       final willInBy = event.willInBy;
 
-// TODO: make a function or valication for duplicated item names
+      // TODO: make a function or valication for duplicated item names
       try {
         if (state is ReturnToolsEquipmentsListStateInitial) {
           final currentSupplyList =
@@ -110,6 +110,7 @@ class ReturnToolsEquipmentsListBloc
     try {
       final isValidForIn = _isValidForIn(
         fetchedData["id"],
+        fetchedData["name"],
         user[0]["name"],
         willInBy.toUpperCase(),
       );
@@ -122,13 +123,17 @@ class ReturnToolsEquipmentsListBloc
     }
   }
 
-  bool _isValidForIn(String id, String processedBy, String willInBy) {
+  bool _isValidForIn(
+    String id,
+    String itemName,
+    String processedBy,
+    String willInBy,
+  ) {
     try {
       bool isValidForIn;
       // List<Map<String, dynamic>> history = itemHistory(id);
-      List<Map<String, dynamic>> history = transmitalHistoryDb.itemHistory(
-        itemId: id,
-      );
+      List<Map<String, dynamic>> history = transmitalHistoryDb
+          .itemHistoryComplete(itemId: id, itemName: itemName);
 
       final datas = history.last;
 
@@ -166,7 +171,10 @@ class ReturnToolsEquipmentsListBloc
     String willInBy,
   ) {
     final status = fetchedData["status"];
-    final record = transmitalHistoryDb.itemHistory(itemId: fetchedData["id"]);
+    final record = transmitalHistoryDb.itemHistoryComplete(
+      itemId: fetchedData["id"],
+      itemName: fetchedData["name"],
+    );
     final lastRecord = record.last;
 
     final outby = lastRecord["outBy"];

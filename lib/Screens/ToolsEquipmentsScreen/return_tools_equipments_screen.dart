@@ -21,29 +21,21 @@ class ReturnToolsEquipmentsScreen extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => ReturnToolsEquipmentsListBloc(
-            toolsEquipmentsDbRepo:
-                RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
-                    context),
-            auth: RepositoryProvider.of<MyFirebaseAuth>(context),
-            userDbRepo:
-                RepositoryProvider.of<FirestoreUsersDbRepository>(context),
-            transmitalHistoryDb: RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
-                context),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => ReturnToolsEquipmentsToDbBloc(
-            toolsEquipmentsRepo:
-                RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
-                    context),
-            auth: RepositoryProvider.of<MyFirebaseAuth>(context),
-            userDbRepo:
-                RepositoryProvider.of<FirestoreUsersDbRepository>(context),
-            transmitalHistoryDb: RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
-              context,
-            ),
-          ),
+          create:
+              (context) => ReturnToolsEquipmentsListBloc(
+                toolsEquipmentsDbRepo:
+                    RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(
+                      context,
+                    ),
+                auth: RepositoryProvider.of<MyFirebaseAuth>(context),
+                userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
+                  context,
+                ),
+                transmitalHistoryDb:
+                    RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
+                      context,
+                    ),
+              ),
         ),
       ],
       child: Body(),
@@ -68,13 +60,15 @@ class Body extends StatelessWidget {
     final returnToolsEquipmentsFromDbBloc =
         context.read<ReturnToolsEquipmentsToDbBloc>();
 
-    return BlocListener<ReturnToolsEquipmentsToDbBloc,
-        ReturnToolsEquipmentsToDbState>(
+    return BlocListener<
+      ReturnToolsEquipmentsToDbBloc,
+      ReturnToolsEquipmentsToDbState
+    >(
       listener: (context, state) {
         if (state is ReturnedToolsEquipmentsToDb) {
           context.read<ToolsEquipmentBloc>().add(
-                FetchToolsEquipmentsData(search: ""),
-              );
+            FetchToolsEquipmentsData(search: ""),
+          );
           if (state.success) {
             showDialog(
               barrierDismissible: false,
@@ -84,13 +78,14 @@ class Body extends StatelessWidget {
                   title: Text("Return Sucessful"),
                   actions: [
                     TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            toolsEquipmentsScreen
-                          );
-                        },
-                        child: Text("OK")),
+                      onPressed: () {
+                        context.read<ReturnToolsEquipmentsToDbBloc>().add(
+                          ResetReturnToolsEquipmentsEvent(),
+                        );
+                        Navigator.pushNamed(context, toolsEquipmentsScreen);
+                      },
+                      child: Text("OK"),
+                    ),
                   ],
                 );
               },
@@ -118,17 +113,18 @@ class Body extends StatelessWidget {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: IconButton(
-                                onPressed: () => Navigator.pushNamed(
-                                    context, toolsEquipmentsScreen),
+                                onPressed:
+                                    () => Navigator.pushNamed(
+                                      context,
+                                      toolsEquipmentsScreen,
+                                    ),
                                 icon: Icon(Icons.arrow_back),
                               ),
                             ),
                             Center(
                               child: Text(
                                 "Return Tools/Equipments",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
+                                style: Theme.of(context).textTheme.titleLarge
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -143,15 +139,17 @@ class Body extends StatelessWidget {
                                   spacing: 20,
                                   children: [
                                     TextFormField(
-                                      controller: toolsEqipmentsIdNameController,
-                                      decoration: customInputDecoration.copyWith(
-                                        labelText: "Enter Id or Name...",
-                                        errorBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color: Colors.redAccent,
+                                      controller:
+                                          toolsEqipmentsIdNameController,
+                                      decoration: customInputDecoration
+                                          .copyWith(
+                                            labelText: "Enter Id or Name...",
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.redAccent,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'This Field is Required';
@@ -161,14 +159,15 @@ class Body extends StatelessWidget {
                                     ),
                                     TextFormField(
                                       controller: returnByController,
-                                      decoration: customInputDecoration.copyWith(
-                                        labelText: "Return By...",
-                                        errorBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color: Colors.redAccent,
+                                      decoration: customInputDecoration
+                                          .copyWith(
+                                            labelText: "Return By...",
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.redAccent,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'This Field is Required';
@@ -194,66 +193,80 @@ class Body extends StatelessWidget {
                               // child has a bounded height from this Expanded sibling.
                               Expanded(
                                 child: BlocListener<
-                                    ReturnToolsEquipmentsListBloc,
-                                    ReturnToolsEquipmentsListState>(
+                                  ReturnToolsEquipmentsListBloc,
+                                  ReturnToolsEquipmentsListState
+                                >(
                                   listener: (context, state) {
                                     if (state
                                         is ReturnToolsEquipmentsListStateError) {
                                       scaffoldMessengerKey.currentState!
-                                          .showSnackBar(SnackBar(
-                                              content: Text(state.error)));
+                                          .showSnackBar(
+                                            SnackBar(
+                                              content: Text(state.error),
+                                            ),
+                                          );
                                       context
                                           .read<ReturnToolsEquipmentsListBloc>()
                                           .add(
-                                              ResetReturnToolsEquipmentsListEvent());
+                                            ResetReturnToolsEquipmentsListEvent(),
+                                          );
                                     }
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.black),
-                                        borderRadius: BorderRadius.circular(10)),
+                                      border: Border.all(color: Colors.black),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
                                       children: [
                                         Container(
                                           height: 50,
                                           decoration: BoxDecoration(
-                                              border: Border(
-                                                  bottom: BorderSide(
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
-                                                      width: 2))),
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                                width: 2,
+                                              ),
+                                            ),
+                                          ),
                                           child: Row(
                                             children: [
                                               TableTitle(displayText: "ID"),
                                               TableTitle(displayText: "NAME"),
-                                              SizedBox(
-                                                width: 100,
-                                              )
+                                              SizedBox(width: 100),
                                             ],
                                           ),
                                         ),
                                         Expanded(
                                           child: BlocBuilder<
-                                              ReturnToolsEquipmentsListBloc,
-                                              ReturnToolsEquipmentsListState>(
+                                            ReturnToolsEquipmentsListBloc,
+                                            ReturnToolsEquipmentsListState
+                                          >(
                                             builder: (context, state) {
                                               if (state
                                                   is ReturnToolsEquipmentsListStateInitial) {
                                                 final currentToolsEquipmentsList =
-                                                    state.items; // Get items from initial state
+                                                    state
+                                                        .items; // Get items from initial state
 
                                                 return ItemList(
-                                                    currentToolsEquipmentsList:
-                                                        currentToolsEquipmentsList);
+                                                  currentToolsEquipmentsList:
+                                                      currentToolsEquipmentsList,
+                                                );
                                               } else if (state
                                                   is ReturnToolsEquipmentsListStateError) {
                                                 final currentToolsEquipmentsList =
-                                                    state.items; // Get items from initial state
+                                                    state
+                                                        .items; // Get items from initial state
 
                                                 return ItemList(
-                                                    currentToolsEquipmentsList:
-                                                        currentToolsEquipmentsList);
+                                                  currentToolsEquipmentsList:
+                                                      currentToolsEquipmentsList,
+                                                );
                                               } else {
                                                 return Center(
                                                   child: Container(),
@@ -309,10 +322,11 @@ class ActionButtons extends StatelessWidget {
           onPressed: () {
             if (frmKey.currentState!.validate()) {
               context.read<ReturnToolsEquipmentsListBloc>().add(
-                  AddItemToReturnToolsEquipmentsListEvent(
-                      idorName:
-                          toolsEquipmentsIdNameController.text.toUpperCase(),
-                      willInBy: returnByController.text.toUpperCase()));
+                AddItemToReturnToolsEquipmentsListEvent(
+                  idorName: toolsEquipmentsIdNameController.text.toUpperCase(),
+                  willInBy: returnByController.text.toUpperCase(),
+                ),
+              );
             }
           },
           style: ButtonStyle(
@@ -320,23 +334,22 @@ class ActionButtons extends StatelessWidget {
           ),
           child: Text("Add Item to List"),
         ),
-        BlocBuilder<ReturnToolsEquipmentsToDbBloc,
-            ReturnToolsEquipmentsToDbState>(
+        BlocBuilder<
+          ReturnToolsEquipmentsToDbBloc,
+          ReturnToolsEquipmentsToDbState
+        >(
           builder: (context, state) {
             if (state is ReturnToolsEquipmentsToDbInitial) {
               return ReturnItemsButton(
-                  frmKey: frmKey,
-                  returnByController: returnByController,
-                  returnToolsEquipmentsList: returnToolsEquipmentsList,
-                  returnToolsEquipmentsToDbBloc: returnToolsEquipmentsToDbBloc);
+                frmKey: frmKey,
+                returnByController: returnByController,
+                returnToolsEquipmentsList: returnToolsEquipmentsList,
+                returnToolsEquipmentsToDbBloc: returnToolsEquipmentsToDbBloc,
+              );
             } else if (state is ReturningToolsEquipmentsToDb) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
+              return Center(child: CircularProgressIndicator());
             } else if (state is ReturnedToolsEquipmentsToDb) {
-              return Center(
-                child: Icon(Icons.check_rounded),
-              );
+              return Center(child: Icon(Icons.check_rounded));
             } else if (state is ReturnToolsEquipmentsToDbStateError) {
               return Icon(Icons.warning_amber_rounded);
             } else {
@@ -371,25 +384,27 @@ class ReturnItemsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: () {
-          if (frmKey.currentState!.validate()) {
-            final state = returnToolsEquipmentsList.state;
-            if (state is ReturnToolsEquipmentsListStateInitial) {
-              final currentItems = state.items;
-              if (currentItems.isNotEmpty || currentItems != []) {
-                returnToolsEquipmentsToDbBloc
-                    .add(StartReturnToolsEquipmentsToDbEvent(
+      onPressed: () {
+        if (frmKey.currentState!.validate()) {
+          final state = returnToolsEquipmentsList.state;
+          if (state is ReturnToolsEquipmentsListStateInitial) {
+            final currentItems = state.items;
+            if (currentItems.isNotEmpty || currentItems != []) {
+              returnToolsEquipmentsToDbBloc.add(
+                StartReturnToolsEquipmentsToDbEvent(
                   items: currentItems,
                   inBy: returnByController.text.toUpperCase(),
-                ));
-              }
+                ),
+              );
             }
           }
-        },
-        style: ButtonStyle(
-          side: WidgetStatePropertyAll(BorderSide(color: Colors.grey)),
-        ),
-        child: Text("Return Items"));
+        }
+      },
+      style: ButtonStyle(
+        side: WidgetStatePropertyAll(BorderSide(color: Colors.grey)),
+      ),
+      child: Text("Return Items"),
+    );
   }
 }
 
@@ -417,14 +432,13 @@ class ItemList extends StatelessWidget {
               SizedBox(
                 width: 100,
                 child: IconButton(
-                  onPressed: () => context
-                      .read<ReturnToolsEquipmentsListBloc>()
-                      .add(RemoveItemFormReturnToolsEquipmentsListEvent(
-                          index: index)),
-                  icon: Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.red,
-                  ),
+                  onPressed:
+                      () => context.read<ReturnToolsEquipmentsListBloc>().add(
+                        RemoveItemFormReturnToolsEquipmentsListEvent(
+                          index: index,
+                        ),
+                      ),
+                  icon: Icon(Icons.delete_outline_rounded, color: Colors.red),
                 ),
               ),
             ],
@@ -436,10 +450,7 @@ class ItemList extends StatelessWidget {
 }
 
 class ListRowContent extends StatelessWidget {
-  const ListRowContent({
-    super.key,
-    required this.displayTxt,
-  });
+  const ListRowContent({super.key, required this.displayTxt});
 
   final String displayTxt;
 
@@ -454,10 +465,7 @@ class ListRowContent extends StatelessWidget {
 }
 
 class TableTitle extends StatelessWidget {
-  const TableTitle({
-    super.key,
-    required this.displayText,
-  });
+  const TableTitle({super.key, required this.displayText});
 
   final String displayText;
 
@@ -467,10 +475,9 @@ class TableTitle extends StatelessWidget {
       child: Center(
         child: Text(
           displayText,
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge!
-              .copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
     );

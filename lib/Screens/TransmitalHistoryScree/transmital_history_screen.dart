@@ -53,7 +53,6 @@ class TransmitalsList extends StatefulWidget {
 }
 
 class _TransmitalsListState extends State<TransmitalsList> {
-  // TODO: NOW TEST IF THE LIST WILL UPDATE AFTER ADDING A NEW ITEM.
   // INITIALIZE THE LIST
   @override
   void initState() {

@@ -13,7 +13,6 @@ class TransmitalHistoryListBloc
     on<FetchTransmitalHistoryListEvent>((event, emit) {
       emit(TransmitalHistoryListLoading());
       try {
-        // TODO: FIND THE REASON WHY EVERYTIME I ADD A NEW ITEM THE ASCENDING ORDER WONT WORK
         final transmitals = transmitalHistoryRepo.fetchTransmitalHistory();
 
         transmitals.sort((a, b) {

@@ -15,7 +15,6 @@ import 'package:inventory_system/SharedComponents/sidemenu.dart';
 import 'package:inventory_system/Theme/theme.dart';
 import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/AddToolsEquipmentsButtonBloc/add_tools_equipments_button_bloc.dart';
 import 'package:inventory_system/bloc/SharedComponentsBlocs/SearchBarBloc/search_bar_bloc.dart';
-import 'package:inventory_system/bloc/ToolsEquipmentsScreenBlocs/PullOutToolsEquipmentsFromDbBloc/pull_out_tools_equipments_from_db_bloc.dart';
 
 class ToolsEquipmentScreen extends StatelessWidget {
   const ToolsEquipmentScreen({super.key});
@@ -36,20 +35,6 @@ class ToolsEquipmentScreen extends StatelessWidget {
               ),
         ),
         BlocProvider<SearchBarBloc>(create: (context) => SearchBarBloc()),
-        BlocProvider(
-          create:
-              (context) => PullOutToolsEquipmentsFromDbBloc(
-                toolsEquipmentsRepo: RepositoryProvider.of<FirestoreToolsEquipmentDBRepository>(context),
-                auth: RepositoryProvider.of<MyFirebaseAuth>(context),
-                userDbRepo: RepositoryProvider.of<FirestoreUsersDbRepository>(
-                  context,
-                ),
-                transmitalHistoryDb:
-                    RepositoryProvider.of<FirestoreTransmitalHistoryRepo>(
-                      context,
-                    ),
-              ),
-        ),
       ],
       child: Body(),
     );

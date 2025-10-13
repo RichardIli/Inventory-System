@@ -8,6 +8,11 @@ final class StartReturnToolsEquipmentsToDbEvent
   final List<Map<String, dynamic>> items;
   final String inBy;
 
-  StartReturnToolsEquipmentsToDbEvent(
-      {required this.items, required this.inBy});
+  StartReturnToolsEquipmentsToDbEvent({
+    required this.items,
+    required this.inBy,
+  });
 }
+
+final class ResetReturnToolsEquipmentsEvent
+    extends ReturnToolsEquipmentsToDbEvent {}

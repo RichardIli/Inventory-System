@@ -58,5 +58,9 @@ class ReturnToolsEquipmentsToDbBloc
         emit(ReturnToolsEquipmentsToDbStateError(error: e.toString()));
       }
     });
+    
+    on<ResetReturnToolsEquipmentsEvent>((event, emit) {
+      emit(ReturnToolsEquipmentsToDbInitial());
+    });
   }
 }
